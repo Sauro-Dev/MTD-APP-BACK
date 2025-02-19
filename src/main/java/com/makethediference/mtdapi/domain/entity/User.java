@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Objects;
 
 
-@Entity(name = "User")
+@Entity(name = "`User`")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
+@Table(name = "`users`", uniqueConstraints = {@UniqueConstraint(columnNames = {"`username`"})})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,7 +25,7 @@ import java.util.Objects;
 public abstract class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idUser;
+    private Long userId;
     @Column(unique = true)
     private String username;
     private String password;
@@ -45,6 +45,12 @@ public abstract class User implements UserDetails {
     private String motivation;
     private boolean enabled = true;
     private boolean firstLogin;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Attendance> attendances;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Area area;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -76,7 +82,7 @@ public abstract class User implements UserDetails {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         User user = (User) o;
-        return getIdUser() != null && Objects.equals(getIdUser(), user.getIdUser());
+        return getUserId() != null && Objects.equals(getUserId(), user.getUserId());
     }
 
     @Override
