@@ -11,6 +11,8 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
+
 @SpringBootApplication
 @RequiredArgsConstructor
 @EnableCaching
@@ -33,11 +35,12 @@ public class MtdApiApplication {
                 defaultAdmin.setDni("00000000");
                 defaultAdmin.setEmail("admin@admin.com");
                 defaultAdmin.setAge(20);
-                defaultAdmin.setPhoneNumber("0123456789");
+                defaultAdmin.setPhoneNumber("123456789");
                 defaultAdmin.setCountry("Peru");
                 defaultAdmin.setRegion("La Libertad");
                 defaultAdmin.setMotivation("Luisda Luisda Luisda Luisda Luisda Luisda");
                 defaultAdmin.setEnabled(true);
+                defaultAdmin.setBirthday(LocalDate.of(2000, 1, 1));
 
                 userRepository.save(defaultAdmin);
             }
