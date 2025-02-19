@@ -38,6 +38,7 @@ public class MtdApiApplication {
                 defaultAdmin.setRegion("La Libertad");
                 defaultAdmin.setMotivation("Luisda Luisda Luisda Luisda Luisda Luisda");
                 defaultAdmin.setEnabled(true);
+                defaultAdmin.setFirstLogin(true);
 
                 userRepository.save(defaultAdmin);
             }

@@ -83,6 +83,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toEntity(data, data.role());
 
         user.setPassword(passwordEncoder.encode(data.password()));
+        user.setFirstLogin(true);
         userRepository.save(user);
 
         String token = jwtService.getToken(user, user);

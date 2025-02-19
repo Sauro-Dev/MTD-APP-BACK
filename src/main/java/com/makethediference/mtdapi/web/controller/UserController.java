@@ -51,15 +51,15 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<MyProfile> getMyProfile() {
-        String email = getAuthenticatedUsername();
-        MyProfile myProfile = userService.getMyProfile(email);
+        String username = getAuthenticatedUsername();
+        MyProfile myProfile = userService.getMyProfile(username);
         return ResponseEntity.ok(myProfile);
     }
 
     @PutMapping("/update/me")
     public ResponseEntity<MyProfile> updateMyProfile(@RequestBody MyProfile myProfileDto) {
-        String email = getAuthenticatedUsername();
-        MyProfile updatedProfile = userService.updateMyProfile(email, myProfileDto);
+        String username = getAuthenticatedUsername();
+        MyProfile updatedProfile = userService.updateMyProfile(username, myProfileDto);
         return ResponseEntity.ok(updatedProfile);
     }
 

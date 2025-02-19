@@ -7,7 +7,7 @@ import org.hibernate.validator.constraints.Length;
 import java.time.LocalDate;
 
 public record RegisterUser(
-        @NotBlank @Length(max = 50) String username,
+        @Email @NotBlank @Length(max = 50) String username,
         @NotBlank @Length(max = 50) String password,
         @NotNull Role role,
         @NotBlank @Length(max = 25) String name,
