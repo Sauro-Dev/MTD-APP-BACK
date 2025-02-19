@@ -1,49 +1,29 @@
 package com.makethediference.mtdapi.infra.mapper;
 
 import com.makethediference.mtdapi.domain.dto.user.ListUser;
+import com.makethediference.mtdapi.domain.dto.user.MyProfile;
 import com.makethediference.mtdapi.domain.dto.user.RegisterUser;
+import com.makethediference.mtdapi.domain.entity.Role;
 import com.makethediference.mtdapi.domain.entity.User;
 import com.makethediference.mtdapi.service.UserFactory;
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
 
-@Component
-public class UserMapper {
+@Mapper(
+        componentModel = "spring",
+        uses = UserFactory.class,
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR
+)
+public interface UserMapper {
 
-    public User toEntity(RegisterUser dto) {
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    User toEntity(RegisterUser dto, @Context Role role);
 
-        User user = UserFactory.createUser(dto.role());
+    ListUser toDto(User user);
 
-        user.setUserId(null);
-        user.setUsername(dto.username());
-        user.setPassword(dto.password());
-        user.setRole(dto.role());
-        user.setName(dto.name());
-        user.setSurname(dto.surname());
-        user.setDni(dto.dni());
-        user.setEmail(dto.email());
-        user.setAge(dto.age());
-        user.setPhoneNumber(dto.phoneNumber());
-        user.setCountry(dto.country());
-        user.setRegion(dto.region());
-        user.setMotivation(dto.motivation());
-        return user;
-    }
+    MyProfile toMyProfile(User user);
 
-    public ListUser toDto(User user) {
-
-        return new ListUser(
-                user.getUserId(),
-                user.getUsername(),
-                user.getRole(),
-                user.getName(),
-                user.getSurname(),
-                user.getDni(),
-                user.getEmail(),
-                user.getAge(),
-                user.getPhoneNumber(),
-                user.getCountry(),
-                user.getRegion(),
-                user.getMotivation()
-        );
-    }
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    void updateFromProfile(MyProfile profile, @MappingTarget User user);
 }

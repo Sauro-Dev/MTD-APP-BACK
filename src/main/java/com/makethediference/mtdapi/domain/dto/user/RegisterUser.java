@@ -4,6 +4,8 @@ import com.makethediference.mtdapi.domain.entity.Role;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.Length;
 
+import java.time.LocalDate;
+
 public record RegisterUser(
         @NotBlank @Length(max = 50) String username,
         @NotBlank @Length(max = 50) String password,
@@ -13,6 +15,7 @@ public record RegisterUser(
         @NotNull @Pattern(regexp = "\\d{8}") String dni,
         @NotBlank @Email @Length(max = 50) String email,
         @NotNull int age,
+        @Past(message = "La fecha de nacimiento debe ser en el pasado") @NotNull(message = "La fecha de nacimiento no puede estar vacía") LocalDate birthdate,
         @NotNull @Size(max = 9) String phoneNumber,
         @NotNull @Length(max = 50) String country,
         @NotNull @Length(max = 50) String region,

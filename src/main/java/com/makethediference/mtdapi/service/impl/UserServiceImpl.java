@@ -1,6 +1,7 @@
 package com.makethediference.mtdapi.service.impl;
 
 import com.makethediference.mtdapi.domain.dto.user.ListUser;
+import com.makethediference.mtdapi.domain.dto.user.MyProfile;
 import com.makethediference.mtdapi.domain.dto.user.RegisterUser;
 import com.makethediference.mtdapi.domain.entity.User;
 import com.makethediference.mtdapi.infra.mapper.UserMapper;
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("El DNI ya está en uso.");
         }
 
-        User user = userMapper.toEntity(data);
+        User user = userMapper.toEntity(data, data.role());
 
         user.setPassword(passwordEncoder.encode(data.password()));
         userRepository.save(user);
@@ -103,5 +104,22 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
         return userMapper.toDto(user);
+    }
+
+    @Override
+    public MyProfile getMyProfile(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con username: " + username));
+        return userMapper.toMyProfile(user);
+    }
+
+    @Override
+    public MyProfile updateMyProfile(String username, MyProfile myProfileDto) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con username: " + username));
+        userMapper.updateFromProfile(myProfileDto, user);
+        userRepository.save(user);
+
+        return userMapper.toMyProfile(user);
     }
 }

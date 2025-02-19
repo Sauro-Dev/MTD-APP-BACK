@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +39,7 @@ public abstract class User implements UserDetails {
     @Column(unique = true)
     private String email;
     private int age;
+    private LocalDate birthdate;
     @Column(unique = true)
     private String phoneNumber;
     private String country;
