@@ -16,7 +16,7 @@ public record RegisterUser(
         @NotNull @Size(max = 9) String phoneNumber,
         @NotNull @Length(max = 50) String country,
         @NotNull @Length(max = 50) String region,
-        @Null @Length(max = 200) String motivation
+        @NotNull @Length(max = 200) String motivation
         )
 {
 }
