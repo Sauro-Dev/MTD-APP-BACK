@@ -1,8 +1,10 @@
 package com.makethediference.mtdapi.domain.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -29,52 +31,44 @@ public abstract class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(unique = true, nullable = false)
-    @NotBlank(message = "El nombre de usuario no puede estar vacío")
+    @Column(unique = true, nullable = false, length = 50)
     private String username;
 
     @Column(nullable = false)
-    @NotBlank(message = "La contraseña no puede estar vacía")
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @NotNull(message = "El rol no puede ser nulo")
     private Role role;
 
-    @Column(nullable = false)
-    @NotBlank(message = "El nombre no puede estar vacío")
+    @Column(nullable = false, length = 25)
     private String name;
 
-    @Column(nullable = false)
-    @NotBlank(message = "El apellido no puede estar vacío")
+    @Column(nullable = false, length = 25)
     private String surname;
 
     @Column(unique = true, nullable = false, length = 8)
-    @Pattern(regexp = "^[0-9]{8}$", message = "El DNI debe contener exactamente 8 dígitos numéricos")
-    @NotBlank(message = "El DNI no puede estar vacío")
     private String dni;
 
-    @Column(unique = true, nullable = false)
-    @Email(message = "El formato del email es inválido")
-    @NotBlank(message = "El email no puede estar vacío")
+    @Column(unique = true, nullable = false, length = 50)
     private String email;
 
     @Column(nullable = false)
-    @Past(message = "La fecha de nacimiento debe ser en el pasado")
-    @NotNull(message = "La fecha de nacimiento no puede estar vacía")
     private LocalDate birthday;
 
     @Column(nullable = false)
     private int age;
 
     @Column(unique = true, nullable = false, length = 9)
-    @Pattern(regexp = "^[0-9]{9}$", message = "El número de teléfono debe contener exactamente 9 dígitos numéricos")
-    @NotBlank(message = "El número de teléfono no puede estar vacío")
     private String phoneNumber;
 
+    @Column(length = 50)
     private String country;
+
+    @Column(length = 50)
     private String region;
+
+    @Column(length = 200)
     private String motivation;
 
     @Column(nullable = false)
@@ -96,17 +90,17 @@ public abstract class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return username; // Lombok genera setUsername
     }
 
     @Override
     public String getPassword() {
-        return this.password;
+        return password; // Lombok genera setPassword
     }
 
     @Override
     public boolean isEnabled() {
-        return this.enabled;
+        return enabled;
     }
 
     @PrePersist
