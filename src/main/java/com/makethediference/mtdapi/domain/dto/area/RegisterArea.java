@@ -1,4 +1,9 @@
 package com.makethediference.mtdapi.domain.dto.area;
 
-public record RegisterArea() {
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
+
+public record RegisterArea(
+        @NotNull @Length(max = 50) String name
+) {
 }

@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -20,12 +21,12 @@ public class MtdApiApplication {
     }
 
     @Bean
-    public CommandLineRunner initDatabase(UserRepository userRepository) {
+    public CommandLineRunner initDatabase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            if (userRepository.findByUsername("admin").isEmpty()) {
+            if (userRepository.findByEmail("admin@admin.com").isEmpty()) {
                 Admin defaultAdmin = new Admin();
                 defaultAdmin.setUsername("admin");
-                defaultAdmin.setPassword("admin123");
+                defaultAdmin.setPassword(passwordEncoder.encode("admin123"));
                 defaultAdmin.setRole(Role.ADMIN);
                 defaultAdmin.setName("Admin");
                 defaultAdmin.setSurname("Mostacero Cieza");

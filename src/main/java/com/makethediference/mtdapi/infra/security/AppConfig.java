@@ -41,12 +41,12 @@ public class AppConfig {
 
     @Bean
     public UserDetailsService userDetailService() {
-        return username -> {
-            com.makethediference.mtdapi.domain.entity.User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+        return email -> {
+            com.makethediference.mtdapi.domain.entity.User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + email));
 
             return new org.springframework.security.core.userdetails.User(
-                    user.getUsername(),
+                    user.getEmail(),
                     user.getPassword(),
                     user.isEnabled(),
                     true,
