@@ -1,4 +1,4 @@
-package com.makethediference.mtdapi.domain.dto;
+package com.makethediference.mtdapi.domain.dto.user;
 
 import com.makethediference.mtdapi.domain.entity.Role;
 import jakarta.validation.constraints.*;

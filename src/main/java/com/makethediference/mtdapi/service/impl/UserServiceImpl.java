@@ -1,6 +1,6 @@
 package com.makethediference.mtdapi.service.impl;
 
-import com.makethediference.mtdapi.domain.dto.RegisterUser;
+import com.makethediference.mtdapi.domain.dto.user.RegisterUser;
 import com.makethediference.mtdapi.domain.entity.User;
 import com.makethediference.mtdapi.infra.repository.UserRepository;
 import com.makethediference.mtdapi.infra.security.JwtService;
@@ -33,15 +33,15 @@ public class UserServiceImpl implements UserService {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
+                        request.getEmail(),
                         request.getPassword()
                 )
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con username: " + request.getUsername()));
+        User user = userRepository.findByUsername(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con username: " + request.getEmail()));
 
         if (!user.isEnabled()) {
             throw new DisabledException("Este usuario ha sido deshabilitado.");

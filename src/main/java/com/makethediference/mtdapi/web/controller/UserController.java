@@ -1,6 +1,6 @@
 package com.makethediference.mtdapi.web.controller;
 
-import com.makethediference.mtdapi.domain.dto.RegisterUser;
+import com.makethediference.mtdapi.domain.dto.user.RegisterUser;
 import com.makethediference.mtdapi.infra.security.LoginRequest;
 import com.makethediference.mtdapi.infra.security.TokenResponse;
 import com.makethediference.mtdapi.service.UserService;
