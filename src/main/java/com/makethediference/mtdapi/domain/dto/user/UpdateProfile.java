@@ -1,5 +1,7 @@
 package com.makethediference.mtdapi.domain.dto.user;
 
+import com.makethediference.mtdapi.domain.entity.EstimatedHours;
+
 import java.time.LocalDate;
 
 public record UpdateProfile(
@@ -12,6 +14,7 @@ public record UpdateProfile(
         String phoneNumber,
         String country,
         String region,
-        String motivation
+        String motivation,
+        EstimatedHours estimatedHours
 ) {
 }

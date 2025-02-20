@@ -1,5 +1,6 @@
 package com.makethediference.mtdapi.domain.dto.user;
 
+import com.makethediference.mtdapi.domain.entity.EstimatedHours;
 import com.makethediference.mtdapi.domain.entity.Role;
 
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ public record ListUser(
         String phoneNumber,
         String country,
         String region,
-        String motivation
+        String motivation,
+        EstimatedHours estimatedHours
 ) {
 }

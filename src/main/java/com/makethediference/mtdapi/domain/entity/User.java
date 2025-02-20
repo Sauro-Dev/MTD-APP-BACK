@@ -46,6 +46,8 @@ public abstract class User implements UserDetails {
     private String country;
     private String region;
     private String motivation;
+    @Enumerated(EnumType.STRING)
+    private EstimatedHours estimatedHours;
     private boolean enabled = true;
     private boolean firstLogin;
 

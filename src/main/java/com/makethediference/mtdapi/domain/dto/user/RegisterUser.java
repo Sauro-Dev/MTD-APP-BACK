@@ -1,5 +1,6 @@
 package com.makethediference.mtdapi.domain.dto.user;
 
+import com.makethediference.mtdapi.domain.entity.EstimatedHours;
 import com.makethediference.mtdapi.domain.entity.Role;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.Length;
@@ -18,7 +19,8 @@ public record RegisterUser(
         @NotBlank @Pattern(regexp = "^[0-9]{9}$") String phoneNumber,
         @NotBlank @Length(max = 50) String country,
         @NotBlank @Length(max = 50) String region,
-        @NotBlank @Length(max = 200) String motivation
+        @NotBlank @Length(max = 200) String motivation,
+        @NotNull EstimatedHours estimatedHours
         )
 {
 }

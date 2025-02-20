@@ -1,6 +1,7 @@
 package com.makethediference.mtdapi;
 
 import com.makethediference.mtdapi.domain.entity.Admin;
+import com.makethediference.mtdapi.domain.entity.EstimatedHours;
 import com.makethediference.mtdapi.domain.entity.Role;
 import com.makethediference.mtdapi.infra.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class MtdApiApplication {
                 defaultAdmin.setCountry("Peru");
                 defaultAdmin.setRegion("La Libertad");
                 defaultAdmin.setMotivation("Luisda Luisda Luisda Luisda Luisda Luisda");
+                defaultAdmin.setEstimatedHours(EstimatedHours.PLUS_TEN);
                 defaultAdmin.setEnabled(true);
                 defaultAdmin.setFirstLogin(true);
 
