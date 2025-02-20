@@ -30,17 +30,19 @@ public class MtdApiApplication {
                 defaultAdmin.setUsername("admin");
                 defaultAdmin.setPassword(passwordEncoder.encode("admin123"));
                 defaultAdmin.setRole(Role.ADMIN);
-                defaultAdmin.setName("Admin");
-                defaultAdmin.setSurname("Mostacero Cieza");
+                defaultAdmin.setName("Luis");
+                defaultAdmin.setPaternalSurname("Mostacero");
+                defaultAdmin.setMaternalSurname("Cieza");
+                LocalDate birth = LocalDate.of(1980, 1, 1);
+                defaultAdmin.setBirthdate(birth);
                 defaultAdmin.setDni("00000000");
                 defaultAdmin.setEmail("admin@admin.com");
-                defaultAdmin.setAge(20);
                 defaultAdmin.setPhoneNumber("123456789");
                 defaultAdmin.setCountry("Peru");
                 defaultAdmin.setRegion("La Libertad");
                 defaultAdmin.setMotivation("Luisda Luisda Luisda Luisda Luisda Luisda");
                 defaultAdmin.setEnabled(true);
-                defaultAdmin.setBirthday(LocalDate.of(2000, 1, 1));
+                defaultAdmin.setFirstLogin(true);
 
                 userRepository.save(defaultAdmin);
             }

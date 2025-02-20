@@ -8,8 +8,8 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Entity(name = "`Areas`")
-@Table(name = "`areas`")
+@Entity(name = "Areas")
+@Table(name = "areas")
 @Getter
 @Setter
 @NoArgsConstructor

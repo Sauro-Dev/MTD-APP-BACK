@@ -1,7 +1,6 @@
 package com.makethediference.mtdapi.service.impl;
 
-import com.makethediference.mtdapi.domain.dto.user.ListUser;
-import com.makethediference.mtdapi.domain.dto.user.RegisterUser;
+import com.makethediference.mtdapi.domain.dto.user.*;
 import com.makethediference.mtdapi.domain.entity.User;
 import com.makethediference.mtdapi.infra.mapper.UserMapper;
 import com.makethediference.mtdapi.infra.repository.UserRepository;
@@ -69,8 +68,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public TokenResponse addUser(RegisterUser data) {
-        if (userRepository.existsByUsername(data.username())) {
-            throw new IllegalArgumentException("El username ya está en uso.");
+        if (userRepository.existsByPhoneNumber(data.phoneNumber())) {
+            throw new IllegalArgumentException("El teléfono ya está en uso.");
         }
         if (userRepository.existsByEmail(data.email())) {
             throw new IllegalArgumentException("El email ya está en uso.");
@@ -79,9 +78,16 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("El DNI ya está en uso.");
         }
 
-        User user = userMapper.toEntity(data);
+        User user = userMapper.toEntity(data, data.role());
+        String autoUsername = generateBaseUsername(
+                data.name(),
+                data.paternalSurname(),
+                data.maternalSurname()
+        );
 
+        user.setUsername(autoUsername);
         user.setPassword(passwordEncoder.encode(data.password()));
+        user.setFirstLogin(true);
         userRepository.save(user);
 
         String token = jwtService.getToken(user, user);
@@ -103,5 +109,103 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
         return userMapper.toDto(user);
+    }
+
+    @Override
+    public MyProfile getMyProfile(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con username: " + email));
+        return userMapper.toMyProfile(user);
+    }
+
+    @Override
+    public UpdateProfileResponse updateMyProfile(String email, UpdateProfile updateProfileDto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
+
+        // Guardamos el email viejo para comparar luego
+        String oldEmail = user.getEmail();
+
+        // 2) Validar colisiones si cambiaron phone, email o dni
+        if (!updateProfileDto.phoneNumber().equals(user.getPhoneNumber())) {
+            if (userRepository.existsByPhoneNumber(updateProfileDto.phoneNumber())) {
+                throw new IllegalArgumentException("El teléfono ya está en uso.");
+            }
+        }
+        if (!updateProfileDto.email().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(updateProfileDto.email())) {
+                throw new IllegalArgumentException("El email ya está en uso.");
+            }
+        }
+        if (!updateProfileDto.dni().equals(user.getDni())) {
+            if (userRepository.existsByDni(updateProfileDto.dni())) {
+                throw new IllegalArgumentException("El DNI ya está en uso.");
+            }
+        }
+
+        // 3) Actualiza la entidad y guarda
+        userMapper.updateFromProfile(updateProfileDto, user);
+        userRepository.save(user);
+
+        // 4) Si el email cambió, generamos token nuevo
+        boolean emailChanged = !oldEmail.equals(user.getEmail());
+        String newToken = null;
+        if (emailChanged) {
+            // Generar token con el nuevo email
+            newToken = jwtService.getToken(user, user);
+        }
+
+        // 5) Retornar la respuesta con UpdateProfile final y el token (si corresponde)
+        UpdateProfile updatedDto = userMapper.toUpdateProfile(user);
+
+        return new UpdateProfileResponse(updatedDto, newToken);
+    }
+
+    private String buildUsernameBase(String name, String paternalSurname, String maternalSurname) {
+        if (name == null || name.isBlank()) {
+            name = "X";
+        }
+        if (paternalSurname == null || paternalSurname.isBlank()) {
+            paternalSurname = "Apellido";
+        }
+        if (maternalSurname == null || maternalSurname.isBlank()) {
+            maternalSurname = "Apellido";
+        }
+
+        // Tomar la primera palabra del apellido paterno
+        String[] paternoPartes = paternalSurname.trim().split("\\s+");
+        String primerPaterno = paternoPartes[0];
+
+        // Tomar la primera palabra del apellido materno
+        String[] maternoPartes = maternalSurname.trim().split("\\s+");
+        String primerMaterno = maternoPartes[0];  // "Yupanqui"
+
+        // Inicial del nombre
+        String inicialNombre = name.substring(0, 1);
+
+        // Inicial del primerMaterno
+        String inicialMaterno = primerMaterno.substring(0, 1);
+
+        return (inicialNombre + primerPaterno + inicialMaterno).toLowerCase();
+    }
+
+    private String generateBaseUsername(String name, String paternalSurname, String maternalSurname) {
+        // Construir la base
+        String base = buildUsernameBase(name, paternalSurname, maternalSurname);
+
+        // Iniciamos en 1
+        int suffix = 1;
+        String candidate;
+
+        // Bucle para buscar un sufijo disponible
+        do {
+            candidate = base + suffix;
+            if (!userRepository.existsByUsername(candidate)) {
+                break;
+            }
+            suffix++;
+        } while (true);
+
+        return candidate;
     }
 }

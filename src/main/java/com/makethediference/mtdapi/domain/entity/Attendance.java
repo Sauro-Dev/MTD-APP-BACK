@@ -8,8 +8,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Entity(name = "`Attendance`")
-@Table(name = "`attendaces`")
+@Entity(name = "Attendance")
+@Table(name = "attendaces")
 @Getter
 @Setter
 @NoArgsConstructor
