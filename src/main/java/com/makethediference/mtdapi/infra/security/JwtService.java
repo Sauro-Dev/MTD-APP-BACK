@@ -25,7 +25,8 @@ public class JwtService {
         claims.put("userId", user.getUserId());
         claims.put("role", user.getRole().name());
         claims.put("username", user.getUsername());
-        return generateToken(claims, userDetails.getUsername());
+        claims.put("email", user.getEmail());
+        return generateToken(claims, user.getEmail());
     }
 
     private String generateToken(Map<String, Object> claims, String subject) {
@@ -43,12 +44,12 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getEmailFromToken(String token) {
         return getClaim(token, Claims::getSubject);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
+        final String username = getEmailFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 

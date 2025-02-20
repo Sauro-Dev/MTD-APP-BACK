@@ -5,11 +5,11 @@ import com.makethediference.mtdapi.domain.entity.Role;
 import java.time.LocalDate;
 
 public record MyProfile(
-        Long userId,
         String username,
         Role role,
         String name,
-        String surname,
+        String paternalSurname,
+        String maternalSurname,
         String dni,
         String email,
         int age,

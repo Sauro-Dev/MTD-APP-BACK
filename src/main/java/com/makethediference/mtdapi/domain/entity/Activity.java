@@ -10,8 +10,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity(name = "`Activity`")
-@Table(name = "`activities`")
+@Entity(name = "Activity")
+@Table(name = "activities")
 @Getter
 @Setter
 @NoArgsConstructor

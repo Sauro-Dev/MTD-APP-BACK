@@ -1,8 +1,6 @@
 package com.makethediference.mtdapi.web.controller;
 
-import com.makethediference.mtdapi.domain.dto.user.ListUser;
-import com.makethediference.mtdapi.domain.dto.user.MyProfile;
-import com.makethediference.mtdapi.domain.dto.user.RegisterUser;
+import com.makethediference.mtdapi.domain.dto.user.*;
 import com.makethediference.mtdapi.infra.security.LoginRequest;
 import com.makethediference.mtdapi.infra.security.TokenResponse;
 import com.makethediference.mtdapi.service.UserService;
@@ -33,7 +31,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register")
-    @jakarta.transaction.Transactional
+    @Transactional
     public ResponseEntity<TokenResponse> addUser(@RequestBody @Valid RegisterUser data) {
         authService.authorizeRegisterUser();
         return ResponseEntity.ok(userService.addUser(data));
@@ -51,19 +49,20 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<MyProfile> getMyProfile() {
-        String username = getAuthenticatedUsername();
-        MyProfile myProfile = userService.getMyProfile(username);
+        String email = getAuthenticatedEmail();
+        MyProfile myProfile = userService.getMyProfile(email);
         return ResponseEntity.ok(myProfile);
     }
 
     @PutMapping("/update/me")
-    public ResponseEntity<MyProfile> updateMyProfile(@RequestBody MyProfile myProfileDto) {
-        String username = getAuthenticatedUsername();
-        MyProfile updatedProfile = userService.updateMyProfile(username, myProfileDto);
-        return ResponseEntity.ok(updatedProfile);
+    public ResponseEntity<UpdateProfileResponse> updateMyProfile(@RequestBody UpdateProfile updateProfileDto) {
+        String email = getAuthenticatedEmail();
+        UpdateProfileResponse result = userService.updateMyProfile(email, updateProfileDto);
+        return ResponseEntity.ok(result);
     }
 
-    private String getAuthenticatedUsername() {
+
+    private String getAuthenticatedEmail() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof String) {

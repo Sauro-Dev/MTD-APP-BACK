@@ -1,8 +1,6 @@
 package com.makethediference.mtdapi.service;
 
-import com.makethediference.mtdapi.domain.dto.user.ListUser;
-import com.makethediference.mtdapi.domain.dto.user.MyProfile;
-import com.makethediference.mtdapi.domain.dto.user.RegisterUser;
+import com.makethediference.mtdapi.domain.dto.user.*;
 import com.makethediference.mtdapi.infra.security.LoginRequest;
 import com.makethediference.mtdapi.infra.security.TokenResponse;
 
@@ -14,5 +12,6 @@ public interface UserService {
     List<ListUser> getAllUsers();
     ListUser getUserById(Long id);
     MyProfile getMyProfile(String email);
-    MyProfile updateMyProfile(String email, MyProfile myProfileDto);
+    UpdateProfileResponse updateMyProfile(String emailActual, UpdateProfile datosNuevos);
+
 }

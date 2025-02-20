@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity(name = "`File`")
-@Table(name = "`files`")
+@Entity(name = "File")
+@Table(name = "files")
 @Getter
 @Setter
 @NoArgsConstructor
