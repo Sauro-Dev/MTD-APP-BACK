@@ -4,8 +4,7 @@ import com.makethediference.mtdapi.domain.entity.Role;
 
 import java.time.LocalDate;
 
-public record ListUser(
-        Long userId,
+public record MyProfile(
         String username,
         Role role,
         String name,

@@ -10,14 +10,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 
-@Entity(name = "`User`")
+@Entity(name = "User")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "`users`", uniqueConstraints = {@UniqueConstraint(columnNames = {"`username`"})})
+@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"`username`"})})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,12 +33,14 @@ public abstract class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
     private String name;
-    private String surname;
+    private String paternalSurname;
+    private String maternalSurname;
     @Column(unique = true)
     private String dni;
     @Column(unique = true)
     private String email;
     private int age;
+    private LocalDate birthdate;
     @Column(unique = true)
     private String phoneNumber;
     private String country;
