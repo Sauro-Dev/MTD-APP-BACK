@@ -26,7 +26,11 @@ public class MtdApiApplication {
     @Bean
     public CommandLineRunner initDatabase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            if (userRepository.findByEmail("admin@admin.com").isEmpty()) {
+            boolean existsByEmail = userRepository.findByEmail("admin@admin.com").isPresent();
+            boolean existsByUsername = userRepository.findByUsername("admin").isPresent();
+            boolean existsByPhoneNumber = userRepository.findByPhoneNumber("123456789").isPresent();
+
+            if (!existsByEmail && !existsByUsername && !existsByPhoneNumber) {
                 Admin defaultAdmin = new Admin();
                 defaultAdmin.setUsername("admin");
                 defaultAdmin.setPassword(passwordEncoder.encode("admin123"));
@@ -39,6 +43,7 @@ public class MtdApiApplication {
                 defaultAdmin.setDni("00000000");
                 defaultAdmin.setEmail("admin@admin.com");
                 defaultAdmin.setPhoneNumber("123456789");
+                defaultAdmin.setCodeNumber("+51");
                 defaultAdmin.setCountry("Peru");
                 defaultAdmin.setRegion("La Libertad");
                 defaultAdmin.setMotivation("Luisda Luisda Luisda Luisda Luisda Luisda");
