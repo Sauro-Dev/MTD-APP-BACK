@@ -25,6 +25,7 @@ public class VolunteerServiceImpl implements VolunteerService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final UserNameGeneratorServiceImpl userNameGeneratorServiceImpl;
     private static final String ALPHANUMERIC_CHARS =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int PASSWORD_LENGTH = 8;
@@ -101,6 +102,12 @@ public class VolunteerServiceImpl implements VolunteerService {
         }
 
         User user = userMapper.fromVolunteerRequest(req);
+        String autoUsername = userNameGeneratorServiceImpl.generateUsername(
+                req.getName(),
+                req.getPaternalSurname(),
+                req.getMaternalSurname()
+        );
+        user.setUsername(autoUsername);
         String randomPassword = generateRandomPassword();
 
         user.setPassword(passwordEncoder.encode(randomPassword));
@@ -109,6 +116,7 @@ public class VolunteerServiceImpl implements VolunteerService {
 
         userRepository.save(user);
     }
+
     private String generateRandomPassword() {
         StringBuilder sb = new StringBuilder();
         java.util.Random random = new java.util.Random();
