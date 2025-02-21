@@ -1,6 +1,7 @@
 package com.makethediference.mtdapi.web.controller;
 
 import com.makethediference.mtdapi.domain.dto.user.*;
+import com.makethediference.mtdapi.infra.security.JwtService;
 import com.makethediference.mtdapi.infra.security.LoginRequest;
 import com.makethediference.mtdapi.infra.security.TokenResponse;
 import com.makethediference.mtdapi.service.UserService;
@@ -22,11 +23,31 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
     @Transactional
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(userService.login(request));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        jwtService.invalidateToken(token);
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok("Sesión cerrada correctamente.");
+    }
+
+    @PostMapping("/validate-token")
+    public ResponseEntity<Boolean> validateToken(@RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        boolean isValid = !jwtService.isTokenInvalidated(token);
+        return ResponseEntity.ok(isValid);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -60,7 +81,6 @@ public class UserController {
         UpdateProfileResponse result = userService.updateMyProfile(email, updateProfileDto);
         return ResponseEntity.ok(result);
     }
-
 
     private String getAuthenticatedEmail() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
