@@ -4,6 +4,7 @@ import com.makethediference.mtdapi.domain.dto.user.ListUser;
 import com.makethediference.mtdapi.domain.dto.user.MyProfile;
 import com.makethediference.mtdapi.domain.dto.user.RegisterUser;
 import com.makethediference.mtdapi.domain.dto.user.UpdateProfile;
+import com.makethediference.mtdapi.domain.entity.EstimatedHours;
 import com.makethediference.mtdapi.domain.entity.Role;
 import com.makethediference.mtdapi.domain.entity.User;
 import com.makethediference.mtdapi.service.UserFactory;
@@ -39,7 +40,8 @@ public class UserMapper {
                 registerUser.phoneNumber(),
                 registerUser.country(),
                 registerUser.region(),
-                registerUser.motivation()
+                registerUser.motivation(),
+                registerUser.estimatedHours()
         );
         user.setRole(role);
 
@@ -64,7 +66,8 @@ public class UserMapper {
                 user.getPhoneNumber(),
                 user.getCountry(),
                 user.getRegion(),
-                user.getMotivation()
+                user.getMotivation(),
+                user.getEstimatedHours()
         );
     }
 
@@ -86,7 +89,8 @@ public class UserMapper {
                 user.getPhoneNumber(),
                 user.getCountry(),
                 user.getRegion(),
-                user.getMotivation()
+                user.getMotivation(),
+                user.getEstimatedHours()
         );
     }
 
@@ -102,7 +106,8 @@ public class UserMapper {
                 dto.phoneNumber(),
                 dto.country(),
                 dto.region(),
-                dto.motivation()
+                dto.motivation(),
+                dto.estimatedHours()
         );
     }
 
@@ -118,7 +123,8 @@ public class UserMapper {
                 user.getPhoneNumber(),
                 user.getCountry(),
                 user.getRegion(),
-                user.getMotivation()
+                user.getMotivation(),
+                user.getEstimatedHours()
         );
     }
 
@@ -133,7 +139,7 @@ public class UserMapper {
         }
     }
 
-    private void fillCommonFields(User user, String name, String paternal, String maternal, String dni, String email, LocalDate birthdate, String phoneNumber, String country, String region, String motivation) {
+    private void fillCommonFields(User user, String name, String paternal, String maternal, String dni, String email, LocalDate birthdate, String phoneNumber, String country, String region, String motivation, EstimatedHours estimatedHours) {
         user.setName(name);
         user.setPaternalSurname(paternal);
         user.setMaternalSurname(maternal);
@@ -144,5 +150,6 @@ public class UserMapper {
         user.setCountry(country);
         user.setRegion(region);
         user.setMotivation(motivation);
+        user.setEstimatedHours(estimatedHours);
     }
 }
