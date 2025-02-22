@@ -1,4 +1,4 @@
-package com.makethediference.mtdapi.domain.dto.user;
+package com.makethediference.mtdapi.domain.dto.volunteer;
 
 public record ValidateVolunteer(
         Long requestId,

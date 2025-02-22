@@ -1,7 +1,7 @@
 package com.makethediference.mtdapi.web.controller;
 
-import com.makethediference.mtdapi.domain.dto.user.ValidateVolunteer;
-import com.makethediference.mtdapi.domain.dto.user.VolunteerForm;
+import com.makethediference.mtdapi.domain.dto.volunteer.ValidateVolunteer;
+import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
 import com.makethediference.mtdapi.domain.entity.Volunteer;
 import com.makethediference.mtdapi.service.VolunteerService;
 import jakarta.validation.Valid;

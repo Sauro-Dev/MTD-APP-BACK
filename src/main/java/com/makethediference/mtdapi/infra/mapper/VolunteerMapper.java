@@ -1,6 +1,6 @@
 package com.makethediference.mtdapi.infra.mapper;
 
-import com.makethediference.mtdapi.domain.dto.user.VolunteerForm;
+import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
 import com.makethediference.mtdapi.domain.entity.Volunteer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

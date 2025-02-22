@@ -1,7 +1,7 @@
 package com.makethediference.mtdapi.service.impl;
 
-import com.makethediference.mtdapi.domain.dto.user.ValidateVolunteer;
-import com.makethediference.mtdapi.domain.dto.user.VolunteerForm;
+import com.makethediference.mtdapi.domain.dto.volunteer.ValidateVolunteer;
+import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
 import com.makethediference.mtdapi.domain.entity.User;
 import com.makethediference.mtdapi.domain.entity.Volunteer;
 import com.makethediference.mtdapi.domain.entity.VolunteerStatus;
@@ -26,6 +26,7 @@ public class VolunteerServiceImpl implements VolunteerService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final UserNameGeneratorServiceImpl userNameGeneratorServiceImpl;
+    private final EmailNotificationServiceImpl emailNotificationServiceImpl;
     private static final String ALPHANUMERIC_CHARS =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int PASSWORD_LENGTH = 8;
@@ -107,14 +108,21 @@ public class VolunteerServiceImpl implements VolunteerService {
                 req.getPaternalSurname(),
                 req.getMaternalSurname()
         );
-        user.setUsername(autoUsername);
         String randomPassword = generateRandomPassword();
 
+        user.setUsername(autoUsername);
         user.setPassword(passwordEncoder.encode(randomPassword));
         user.setEnabled(true);
         user.setFirstLogin(true);
 
         userRepository.save(user);
+
+        emailNotificationServiceImpl.sendVolunteerApprovalEmail(
+                req.getEmail(),
+                autoUsername,
+                randomPassword,
+                user.getRole().name()
+        );
     }
 
     private String generateRandomPassword() {

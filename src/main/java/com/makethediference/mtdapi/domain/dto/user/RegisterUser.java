@@ -14,7 +14,7 @@ public record RegisterUser(
         @NotBlank @Length(max = 50) String password,
         @NotNull Role role,
         @NotBlank @Pattern(regexp = "^[0-9]{8}$") String dni,
-        @NotBlank @Email @Length(max = 50) String email,
+        @NotBlank @Email @Length(max = 100) String email,
         @Past(message = "La fecha de nacimiento debe ser en el pasado") @NotNull(message = "La fecha de nacimiento no puede estar vacía") LocalDate birthdate,
         @NotBlank @Pattern(regexp = "^[0-9]{9}$") String phoneNumber,
         @NotBlank String codeNumber,
