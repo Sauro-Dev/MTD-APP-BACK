@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final UserNameGeneratorServiceImpl userNameGeneratorServiceImpl;
 
     @Override
     public TokenResponse login(LoginRequest request) {
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.toEntity(data, data.role());
-        String autoUsername = generateBaseUsername(
+        String autoUsername = userNameGeneratorServiceImpl.generateUsername(
                 data.name(),
                 data.paternalSurname(),
                 data.maternalSurname()
@@ -159,53 +160,5 @@ public class UserServiceImpl implements UserService {
         UpdateProfile updatedDto = userMapper.toUpdateProfile(user);
 
         return new UpdateProfileResponse(updatedDto, newToken);
-    }
-
-    private String buildUsernameBase(String name, String paternalSurname, String maternalSurname) {
-        if (name == null || name.isBlank()) {
-            name = "X";
-        }
-        if (paternalSurname == null || paternalSurname.isBlank()) {
-            paternalSurname = "Apellido";
-        }
-        if (maternalSurname == null || maternalSurname.isBlank()) {
-            maternalSurname = "Apellido";
-        }
-
-        // Tomar la primera palabra del apellido paterno
-        String[] paternoPartes = paternalSurname.trim().split("\\s+");
-        String primerPaterno = paternoPartes[0];
-
-        // Tomar la primera palabra del apellido materno
-        String[] maternoPartes = maternalSurname.trim().split("\\s+");
-        String primerMaterno = maternoPartes[0];  // "Yupanqui"
-
-        // Inicial del nombre
-        String inicialNombre = name.substring(0, 1);
-
-        // Inicial del primerMaterno
-        String inicialMaterno = primerMaterno.substring(0, 1);
-
-        return (inicialNombre + primerPaterno + inicialMaterno).toLowerCase();
-    }
-
-    private String generateBaseUsername(String name, String paternalSurname, String maternalSurname) {
-        // Construir la base
-        String base = buildUsernameBase(name, paternalSurname, maternalSurname);
-
-        // Iniciamos en 1
-        int suffix = 1;
-        String candidate;
-
-        // Bucle para buscar un sufijo disponible
-        do {
-            candidate = base + suffix;
-            if (!userRepository.existsByUsername(candidate)) {
-                break;
-            }
-            suffix++;
-        } while (true);
-
-        return candidate;
     }
 }

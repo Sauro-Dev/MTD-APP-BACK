@@ -7,6 +7,7 @@ import com.makethediference.mtdapi.domain.dto.user.UpdateProfile;
 import com.makethediference.mtdapi.domain.entity.EstimatedHours;
 import com.makethediference.mtdapi.domain.entity.Role;
 import com.makethediference.mtdapi.domain.entity.User;
+import com.makethediference.mtdapi.domain.entity.Volunteer;
 import com.makethediference.mtdapi.service.UserFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,7 @@ public class UserMapper {
                 registerUser.email(),
                 registerUser.birthdate(),
                 registerUser.phoneNumber(),
+                registerUser.codeNumber(),
                 registerUser.country(),
                 registerUser.region(),
                 registerUser.motivation(),
@@ -47,6 +49,27 @@ public class UserMapper {
 
         return user;
     }
+
+    public User fromVolunteerRequest(Volunteer req) {
+        User user = UserFactory.createUser(Role.MAKER);
+
+        user.setName(req.getName());
+        user.setPaternalSurname(req.getPaternalSurname());
+        user.setMaternalSurname(req.getMaternalSurname());
+        user.setDni(req.getDni());
+        user.setEmail(req.getEmail());
+        setBirthdateAndAge(user, req.getBirthdate());
+        user.setPhoneNumber(req.getPhoneNumber());
+        user.setCodeNumber(req.getCodeNumber());
+        user.setCountry(req.getCountry());
+        user.setRegion(req.getRegion());
+        user.setMotivation(req.getMotivation());
+        user.setEstimatedHours(req.getEstimatedHours());
+
+        user.setRole(Role.MAKER);
+        return user;
+    }
+
 
     /**
      * Convierte la entidad User en un DTO ListUser para mostrar info resumida.
@@ -64,6 +87,7 @@ public class UserMapper {
                 user.getAge(),
                 user.getBirthdate(),
                 user.getPhoneNumber(),
+                user.getCodeNumber(),
                 user.getCountry(),
                 user.getRegion(),
                 user.getMotivation(),
@@ -87,6 +111,7 @@ public class UserMapper {
                 user.getAge(),
                 user.getBirthdate(),
                 user.getPhoneNumber(),
+                user.getCodeNumber(),
                 user.getCountry(),
                 user.getRegion(),
                 user.getMotivation(),
@@ -104,6 +129,7 @@ public class UserMapper {
                 dto.email(),
                 dto.birthdate(),
                 dto.phoneNumber(),
+                dto.codeNumber(),
                 dto.country(),
                 dto.region(),
                 dto.motivation(),
@@ -121,6 +147,7 @@ public class UserMapper {
                 user.getEmail(),
                 user.getBirthdate(),
                 user.getPhoneNumber(),
+                user.getCodeNumber(),
                 user.getCountry(),
                 user.getRegion(),
                 user.getMotivation(),
@@ -139,14 +166,33 @@ public class UserMapper {
         }
     }
 
-    private void fillCommonFields(User user, String name, String paternal, String maternal, String dni, String email, LocalDate birthdate, String phoneNumber, String country, String region, String motivation, EstimatedHours estimatedHours) {
+    private void fillCommonFields(
+            User user,
+            String name,
+            String paternal,
+            String maternal,
+            String dni,
+            String email,
+            LocalDate birthdate,
+            String phoneNumber,
+            String codeNumber,
+            String country,
+            String region,
+            String motivation,
+            EstimatedHours estimatedHours
+    ) {
         user.setName(name);
         user.setPaternalSurname(paternal);
         user.setMaternalSurname(maternal);
         user.setDni(dni);
         user.setEmail(email);
         setBirthdateAndAge(user, birthdate);
+        int age = user.getAge();
+        if (age < 16 || age > 100) {
+            throw new IllegalArgumentException("La edad debe estar entre 16 y 100 años.");
+        }
         user.setPhoneNumber(phoneNumber);
+        user.setCodeNumber(codeNumber);
         user.setCountry(country);
         user.setRegion(region);
         user.setMotivation(motivation);

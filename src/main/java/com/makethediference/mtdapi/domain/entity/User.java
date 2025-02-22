@@ -43,6 +43,7 @@ public abstract class User implements UserDetails {
     private LocalDate birthdate;
     @Column(unique = true)
     private String phoneNumber;
+    private String codeNumber;
     private String country;
     private String region;
     private String motivation;

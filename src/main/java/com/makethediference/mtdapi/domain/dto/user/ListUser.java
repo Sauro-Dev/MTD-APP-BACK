@@ -17,6 +17,7 @@ public record ListUser(
         int age,
         LocalDate birthdate,
         String phoneNumber,
+        String codeNumber,
         String country,
         String region,
         String motivation,

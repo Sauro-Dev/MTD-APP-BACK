@@ -12,6 +12,7 @@ public record UpdateProfile(
         String email,
         LocalDate birthdate,
         String phoneNumber,
+        String codeNumber,
         String country,
         String region,
         String motivation,
