@@ -10,4 +10,7 @@ public interface PlaylistService {
     ListPlaylist registerPlaylist(RegisterPlaylist registerPlaylist);
     List<ListPlaylist> getPlaylists();
     ListPlaylist updatePlaylist(Long id, UpdatePlaylist updatePlaylistDto);
+    ListPlaylist disablePlaylist(Long id);
+    ListPlaylist enablePlaylist(Long id);
+    List<ListPlaylist> getDisabledPlaylists();
 }

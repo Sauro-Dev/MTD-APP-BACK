@@ -28,7 +28,8 @@ public class PlaylistMapper {
                 playlist.getIdPlaylist(),
                 playlist.getTitle(),
                 playlist.getEmbedUrl(),
-                playlist.getDirectUrl()
+                playlist.getDirectUrl(),
+                playlist.isEnabled()
         );
     }
 

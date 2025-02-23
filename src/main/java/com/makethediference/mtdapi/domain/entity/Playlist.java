@@ -21,4 +21,5 @@ public class Playlist {
     private String embedUrl;
     @Column(unique = true)
     private String directUrl;
+    private boolean enabled = true;
 }

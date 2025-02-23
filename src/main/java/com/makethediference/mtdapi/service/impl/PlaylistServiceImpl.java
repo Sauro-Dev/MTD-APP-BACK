@@ -37,7 +37,7 @@ public class PlaylistServiceImpl implements PlaylistService {
 
     @Override
     public List<ListPlaylist> getPlaylists() {
-        return playlistRepository.findAll().stream()
+        return playlistRepository.findAllByEnabledTrue().stream()
                 .map(playlistMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -60,5 +60,31 @@ public class PlaylistServiceImpl implements PlaylistService {
         Playlist updated = playlistRepository.save(entity);
         return playlistMapper.toDto(updated);
 
+    }
+
+    @Override
+    public ListPlaylist disablePlaylist(Long id) {
+        Playlist playlist = playlistRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No existe la playlist con id: " + id));
+        playlist.setEnabled(false);
+        playlistRepository.save(playlist);
+        return playlistMapper.toDto(playlist);
+    }
+
+    @Override
+    public ListPlaylist enablePlaylist(Long id) {
+        Playlist playlist = playlistRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No existe la playlist con id: " + id));
+        playlist.setEnabled(true);
+        playlistRepository.save(playlist);
+        return playlistMapper.toDto(playlist);
+    }
+
+    @Override
+    public List<ListPlaylist> getDisabledPlaylists() {
+        return playlistRepository.findAllByEnabledFalse()
+                .stream()
+                .map(playlistMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

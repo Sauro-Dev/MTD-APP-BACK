@@ -32,9 +32,13 @@ public class PlaylistController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<ListPlaylist>> getAllPlaylists() {
+    public ResponseEntity<?> getAllPlaylists() {
         List<ListPlaylist> playlists = playlistService.getPlaylists();
-        return ResponseEntity.ok(playlists);
+        if (playlists.isEmpty()) {
+            return ResponseEntity.ok("No se encontraron playlists habilitadas en la BD");
+        } else {
+            return ResponseEntity.ok(playlists);
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -46,5 +50,33 @@ public class PlaylistController {
     ) {
         ListPlaylist updatedDto = playlistService.updatePlaylist(id, updatePlaylistDto);
         return ResponseEntity.ok(updatedDto);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/disable/{id}")
+    @Transactional
+    public ResponseEntity<ListPlaylist> disablePlaylist(@PathVariable Long id) {
+        authService.authorizeDisablePlaylist();
+        ListPlaylist disabledDto = playlistService.disablePlaylist(id);
+        return ResponseEntity.ok(disabledDto);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/enable/{id}")
+    @Transactional
+    public ResponseEntity<ListPlaylist> enablePlaylist(@PathVariable Long id) {
+        authService.authorizeEnablePlaylist();
+        ListPlaylist enabledDto = playlistService.enablePlaylist(id);
+        return ResponseEntity.ok(enabledDto);
+    }
+
+    @GetMapping("/disabled")
+    public ResponseEntity<?> getDisabledPlaylists() {
+        List<ListPlaylist> disabled = playlistService.getDisabledPlaylists();
+        if (disabled.isEmpty()) {
+            return ResponseEntity.ok("No se encontraron playlists deshabilitadas en la BD");
+        } else {
+            return ResponseEntity.ok(disabled);
+        }
     }
 }

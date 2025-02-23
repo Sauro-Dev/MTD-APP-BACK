@@ -23,6 +23,22 @@ public class AdminAuthService implements AuthService {
         }
     }
 
+    @Override
+    public void authorizeDisablePlaylist() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden deshabilitar playlists.");
+        }
+    }
+
+    @Override
+    public void authorizeEnablePlaylist()  {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden habilitar playlists.");
+        }
+    }
+
     public void authorizeAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {

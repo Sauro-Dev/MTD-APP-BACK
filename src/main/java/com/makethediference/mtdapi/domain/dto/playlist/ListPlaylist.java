@@ -4,6 +4,7 @@ public record ListPlaylist(
         Long idPlaylist,
         String title,
         String embedUrl,
-        String directUrl
+        String directUrl,
+        boolean enabled
 ) {
 }
