@@ -34,6 +34,7 @@ public class AreaController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<List<ListArea>> getAllAreas() {
         return ResponseEntity.ok(areaService.getAllAreas());
     }
