@@ -4,6 +4,7 @@ import com.makethediference.mtdapi.domain.dto.volunteer.ValidateVolunteer;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
 import com.makethediference.mtdapi.domain.entity.Volunteer;
 import com.makethediference.mtdapi.service.VolunteerService;
+import com.makethediference.mtdapi.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.util.List;
 public class VolunteerController {
 
     private final VolunteerService volunteerService;
+    private final AuthService authService;
 
     @PostMapping("/form")
     @Transactional
@@ -40,6 +42,7 @@ public class VolunteerController {
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ResponseEntity<String> validateVolunteer(@RequestBody @Valid ValidateVolunteer dto) {
+        authService.authorizeValidateVolunteer();
         volunteerService.validateRequest(dto);
         return ResponseEntity.ok("Solicitud procesada. " +
                 (dto.approved() ? "Se creó el usuario." : "Se rechazó la solicitud."));

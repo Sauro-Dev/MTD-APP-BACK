@@ -39,6 +39,14 @@ public class AdminAuthService implements AuthService {
         }
     }
 
+    @Override
+    public void authorizeValidateVolunteer() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden validar voluntarios.");
+        }
+    }
+
     public void authorizeAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {

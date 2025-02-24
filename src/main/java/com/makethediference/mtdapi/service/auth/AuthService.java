@@ -5,5 +5,6 @@ public interface AuthService {
     void authorizeRegisterPlaylist();
     void authorizeDisablePlaylist();
     void authorizeEnablePlaylist();
+    void authorizeValidateVolunteer();
     void authorizeAdmin();
 }
