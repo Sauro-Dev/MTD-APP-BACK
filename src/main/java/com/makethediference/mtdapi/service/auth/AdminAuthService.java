@@ -47,6 +47,14 @@ public class AdminAuthService implements AuthService {
         }
     }
 
+    @Override
+    public void authorizeRegisterArea() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden registrar areas.");
+        }
+    }
+
     public void authorizeAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {

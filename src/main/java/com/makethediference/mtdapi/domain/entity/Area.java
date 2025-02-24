@@ -18,11 +18,7 @@ public class Area {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long areaId;
-
-    @Column(nullable = false, length = 50)
     private String name;
-
-    @Column(nullable = false, length = 7)
     private String color;
 
     @OneToOne
