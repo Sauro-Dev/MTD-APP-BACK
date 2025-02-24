@@ -9,6 +9,7 @@ import com.makethediference.mtdapi.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -25,6 +26,7 @@ public class AreaController {
     private final AuthService authService;
 
     @PostMapping("/register")
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Area> registerArea(@Valid @RequestBody RegisterArea dto) {
         authService.authorizeRegisterArea();
