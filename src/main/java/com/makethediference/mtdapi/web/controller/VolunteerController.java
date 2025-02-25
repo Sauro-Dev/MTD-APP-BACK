@@ -2,7 +2,7 @@ package com.makethediference.mtdapi.web.controller;
 
 import com.makethediference.mtdapi.domain.dto.volunteer.ValidateVolunteer;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
-import com.makethediference.mtdapi.domain.entity.Volunteer;
+import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerPending;
 import com.makethediference.mtdapi.service.VolunteerService;
 import com.makethediference.mtdapi.service.auth.AuthService;
 import jakarta.validation.Valid;
@@ -33,8 +33,9 @@ public class VolunteerController {
     @GetMapping("/pending")
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Volunteer>> getPendingVolunteers() {
-        List<Volunteer> pendingList = volunteerService.getPendingVolunteers();
+    public ResponseEntity<List<VolunteerPending>> getPendingVolunteers() {
+        // Llama al nuevo método del servicio
+        List<VolunteerPending> pendingList = volunteerService.getPendingVolunteers();
         return ResponseEntity.ok(pendingList);
     }
 

@@ -1,6 +1,7 @@
 package com.makethediference.mtdapi.infra.mapper;
 
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
+import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerPending;
 import com.makethediference.mtdapi.domain.entity.Area;
 import com.makethediference.mtdapi.domain.entity.Role;
 import com.makethediference.mtdapi.domain.entity.Volunteer;
@@ -45,6 +46,17 @@ public class VolunteerMapper {
                 .firstLogin(false)
                 .role(Role.MAKER)
                 .build();
+    }
+
+    public VolunteerPending toPending(Volunteer volunteer) {
+        return new VolunteerPending(
+                volunteer.getUserId(),
+                volunteer.getName(),
+                volunteer.getPaternalSurname(),
+                volunteer.getMaternalSurname(),
+                volunteer.getEmail(),
+                volunteer.getStatus()
+        );
     }
 
     private int calculateAge(LocalDate birthdate) {

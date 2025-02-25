@@ -15,7 +15,6 @@ public class AreaMapper {
                 null,
                 dto.name(),
                 dto.color(),
-                Collections.emptyList(),
                 Collections.emptyList()
         );
     }
@@ -24,8 +23,7 @@ public class AreaMapper {
         return new ListArea(
                 area.getAreaId(),
                 area.getName(),
-                area.getColor(),
-                area.getUsers().size()
+                area.getColor()
         );
     }
 }

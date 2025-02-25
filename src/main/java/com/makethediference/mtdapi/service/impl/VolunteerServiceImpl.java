@@ -2,6 +2,7 @@ package com.makethediference.mtdapi.service.impl;
 
 import com.makethediference.mtdapi.domain.dto.volunteer.ValidateVolunteer;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
+import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerPending;
 import com.makethediference.mtdapi.domain.entity.Role;
 import com.makethediference.mtdapi.domain.entity.Volunteer;
 import com.makethediference.mtdapi.domain.entity.VolunteerStatus;
@@ -55,8 +56,12 @@ public class VolunteerServiceImpl implements VolunteerService {
     }
 
     @Override
-    public List<Volunteer> getPendingVolunteers() {
-        return volunteerRepository.findByStatus(VolunteerStatus.PENDING);
+    public List<VolunteerPending> getPendingVolunteers() {
+        List<Volunteer> volunteers = volunteerRepository.findByStatus(VolunteerStatus.PENDING);
+
+        return volunteers.stream()
+                .map(volunteerMapper::toPending)
+                .toList();
     }
 
     @Override

@@ -22,8 +22,6 @@ public class Area {
     private String name;
     private String color;
 
-    @OneToMany(mappedBy = "appliedArea", fetch = FetchType.LAZY)
-    private List<User> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "area", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Activity> activities;

@@ -9,4 +9,6 @@ import java.util.List;
 public interface AreaService {
     Area registerArea(RegisterArea dto);
     List<ListArea> getAllAreas();
+    ListArea getMyAssignedArea();
+    List<ListArea> getPublicAreas();
 }

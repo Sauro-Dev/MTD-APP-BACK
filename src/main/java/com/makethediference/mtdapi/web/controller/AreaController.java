@@ -35,9 +35,21 @@ public class AreaController {
         return ResponseEntity.ok(area);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'COUNCIL', 'COORDINATOR')")
     @GetMapping("/all")
-    @PreAuthorize("isAnonymous()")
     public ResponseEntity<List<ListArea>> getAllAreas() {
         return ResponseEntity.ok(areaService.getAllAreas());
+    }
+
+    @GetMapping("/maker/my-area")
+    @PreAuthorize("hasRole('MAKER')")
+    public ResponseEntity<ListArea> getMyAssignedArea() {
+        return ResponseEntity.ok(areaService.getMyAssignedArea());
+    }
+
+    @GetMapping("/public/all")
+    @PreAuthorize("isAnonymous()")
+    public ResponseEntity<List<ListArea>> getPublicAreas() {
+        return ResponseEntity.ok(areaService.getPublicAreas());
     }
 }
