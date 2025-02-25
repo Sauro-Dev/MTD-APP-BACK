@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "Areas")
@@ -21,9 +22,8 @@ public class Area {
     private String name;
     private String color;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", unique = true)
-    private User user;
+    @OneToMany(mappedBy = "appliedArea", fetch = FetchType.LAZY)
+    private List<Volunteer> volunteers = new ArrayList<>();
 
     @OneToMany(mappedBy = "area", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Activity> activities;

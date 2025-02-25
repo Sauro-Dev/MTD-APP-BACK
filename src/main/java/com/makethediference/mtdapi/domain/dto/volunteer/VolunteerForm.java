@@ -18,6 +18,7 @@ public record VolunteerForm(
         @NotBlank @Length(max = 50) String country,
         @NotBlank @Length(max = 50) String region,
         @NotBlank @Length(max = 200) String motivation,
-        @NotNull EstimatedHours estimatedHours
+        @NotNull EstimatedHours estimatedHours,
+        @NotNull Long areaId
 ) {
 }

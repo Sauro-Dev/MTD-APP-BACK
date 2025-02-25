@@ -1,7 +1,10 @@
 package com.makethediference.mtdapi.infra.mapper;
 
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
+import com.makethediference.mtdapi.domain.entity.Area;
 import com.makethediference.mtdapi.domain.entity.Volunteer;
+import com.makethediference.mtdapi.domain.entity.VolunteerStatus;
+import com.makethediference.mtdapi.infra.repository.AreaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -9,21 +12,28 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class VolunteerMapper {
 
-    public Volunteer toEntity(VolunteerForm form) {
-        Volunteer request = new Volunteer();
-        request.setName(form.name());
-        request.setPaternalSurname(form.paternalSurname());
-        request.setMaternalSurname(form.maternalSurname());
-        request.setDni(form.dni());
-        request.setEmail(form.email());
-        request.setBirthdate(form.birthdate());
-        request.setPhoneNumber(form.phoneNumber());
-        request.setCodeNumber(form.codeNumber());
-        request.setCountry(form.country());
-        request.setRegion(form.region());
-        request.setMotivation(form.motivation());
-        request.setEstimatedHours(form.estimatedHours());
+    private final AreaRepository areaRepository;
 
-        return request;
+    public Volunteer toEntity(VolunteerForm form) {
+        Area appliedArea = areaRepository.findById(form.areaId())
+                .orElseThrow(() -> new IllegalArgumentException("Área no encontrada"));
+
+        return new Volunteer(
+                form.name(),
+                form.paternalSurname(),
+                form.maternalSurname(),
+                form.dni(),
+                form.email(),
+                form.birthdate(),
+                form.phoneNumber(),
+                form.codeNumber(),
+                form.country(),
+                form.region(),
+                form.motivation(),
+                form.estimatedHours(),
+                VolunteerStatus.PENDING,
+                null,
+                appliedArea
+        );
     }
 }

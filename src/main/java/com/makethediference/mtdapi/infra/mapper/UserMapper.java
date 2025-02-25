@@ -7,7 +7,6 @@ import com.makethediference.mtdapi.domain.dto.user.UpdateProfile;
 import com.makethediference.mtdapi.domain.entity.EstimatedHours;
 import com.makethediference.mtdapi.domain.entity.Role;
 import com.makethediference.mtdapi.domain.entity.User;
-import com.makethediference.mtdapi.domain.entity.Volunteer;
 import com.makethediference.mtdapi.service.UserFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -47,26 +46,6 @@ public class UserMapper {
         );
         user.setRole(role);
 
-        return user;
-    }
-
-    public User fromVolunteerRequest(Volunteer req) {
-        User user = UserFactory.createUser(Role.MAKER);
-
-        user.setName(req.getName());
-        user.setPaternalSurname(req.getPaternalSurname());
-        user.setMaternalSurname(req.getMaternalSurname());
-        user.setDni(req.getDni());
-        user.setEmail(req.getEmail());
-        setBirthdateAndAge(user, req.getBirthdate());
-        user.setPhoneNumber(req.getPhoneNumber());
-        user.setCodeNumber(req.getCodeNumber());
-        user.setCountry(req.getCountry());
-        user.setRegion(req.getRegion());
-        user.setMotivation(req.getMotivation());
-        user.setEstimatedHours(req.getEstimatedHours());
-
-        user.setRole(Role.MAKER);
         return user;
     }
 

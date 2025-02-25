@@ -5,18 +5,27 @@ import com.makethediference.mtdapi.domain.dto.area.RegisterArea;
 import com.makethediference.mtdapi.domain.entity.Area;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+
 @Component
 public class AreaMapper {
 
     public Area toEntity(RegisterArea dto) {
-        return new Area(null, dto.name(), dto.color(), null, null);
+        return new Area(
+                null,
+                dto.name(),
+                dto.color(),
+                Collections.emptyList(),
+                Collections.emptyList()
+        );
     }
 
     public ListArea toDto(Area area) {
         return new ListArea(
                 area.getAreaId(),
                 area.getName(),
-                area.getColor()
+                area.getColor(),
+                area.getVolunteers().size()
         );
     }
 }

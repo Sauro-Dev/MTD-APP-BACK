@@ -2,10 +2,9 @@ package com.makethediference.mtdapi.service.impl;
 
 import com.makethediference.mtdapi.domain.dto.volunteer.ValidateVolunteer;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
-import com.makethediference.mtdapi.domain.entity.User;
+import com.makethediference.mtdapi.domain.entity.Role;
 import com.makethediference.mtdapi.domain.entity.Volunteer;
 import com.makethediference.mtdapi.domain.entity.VolunteerStatus;
-import com.makethediference.mtdapi.infra.mapper.UserMapper;
 import com.makethediference.mtdapi.infra.mapper.VolunteerMapper;
 import com.makethediference.mtdapi.infra.repository.UserRepository;
 import com.makethediference.mtdapi.infra.repository.VolunteerRepository;
@@ -23,7 +22,6 @@ public class VolunteerServiceImpl implements VolunteerService {
     private final VolunteerRepository volunteerRepository;
     private final VolunteerMapper volunteerMapper;
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final UserNameGeneratorServiceImpl userNameGeneratorServiceImpl;
     private final EmailNotificationServiceImpl emailNotificationServiceImpl;
@@ -63,66 +61,45 @@ public class VolunteerServiceImpl implements VolunteerService {
 
     @Override
     public void validateRequest(ValidateVolunteer dto) {
-        Volunteer request = volunteerRepository.findById(dto.requestId())
+        Volunteer volunteer = volunteerRepository.findById(dto.userId())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "No se encontró la solicitud con id=" + dto.requestId()));
+                        "Solicitud de voluntario no encontrada con ID: " + dto.userId()));
 
-        // Si la solicitud ya está APROBADA o RECHAZADA, decide si prohíbes la modificación
-        if (request.getStatus() != VolunteerStatus.PENDING) {
-            throw new IllegalStateException(
-                    "La solicitud ya no está pendiente. Estado actual: " + request.getStatus());
+        if (volunteer.getAppliedArea() == null) {
+            throw new IllegalStateException("El voluntario no tiene un área asignada");
         }
 
-        request.setAdminComments(dto.adminComments());
+        if (volunteer.getStatus() != VolunteerStatus.PENDING) {
+            throw new IllegalStateException("La solicitud ya fue procesada. Estado actual: " + volunteer.getStatus());
+        }
+
+        volunteer.setAdminComments(dto.adminComments());
 
         if (dto.approved()) {
-            // 1) Cambia estado a APPROVED
-            request.setStatus(VolunteerStatus.APPROVED);
+            String autoUsername = userNameGeneratorServiceImpl.generateUsername(
+                    volunteer.getName(),
+                    volunteer.getPaternalSurname(),
+                    volunteer.getMaternalSurname()
+            );
+            String randomPassword = generateRandomPassword();
 
-            // 2) Crea un User con los datos del request
-            createUserFromRequest(request);
+            volunteer.setUsername(autoUsername);
+            volunteer.setPassword(passwordEncoder.encode(randomPassword));
+            volunteer.setEnabled(true);
+            volunteer.setFirstLogin(true);
+            volunteer.setRole(Role.MAKER);
+            volunteer.setStatus(VolunteerStatus.APPROVED);
 
+            emailNotificationServiceImpl.sendVolunteerApprovalEmail(
+                    volunteer.getEmail(),
+                    autoUsername,
+                    randomPassword,
+                    volunteer.getRole().name()
+            );
         } else {
-            // RECHAZADO
-            request.setStatus(VolunteerStatus.REJECTED);
-            // No creamos user
+            volunteer.setStatus(VolunteerStatus.REJECTED);
         }
-
-        volunteerRepository.save(request);
-    }
-
-    private void createUserFromRequest(Volunteer req) {
-        if (userRepository.existsByEmail(req.getEmail())) {
-            throw new IllegalArgumentException("Ya existe un user con el email " + req.getEmail());
-        }
-        if (userRepository.existsByDni(req.getDni())) {
-            throw new IllegalArgumentException("Ya existe un user con el DNI " + req.getDni());
-        }
-        if (userRepository.existsByPhoneNumber(req.getPhoneNumber())) {
-            throw new IllegalArgumentException("Ya existe un user con el teléfono " + req.getPhoneNumber());
-        }
-
-        User user = userMapper.fromVolunteerRequest(req);
-        String autoUsername = userNameGeneratorServiceImpl.generateUsername(
-                req.getName(),
-                req.getPaternalSurname(),
-                req.getMaternalSurname()
-        );
-        String randomPassword = generateRandomPassword();
-
-        user.setUsername(autoUsername);
-        user.setPassword(passwordEncoder.encode(randomPassword));
-        user.setEnabled(true);
-        user.setFirstLogin(true);
-
-        userRepository.save(user);
-
-        emailNotificationServiceImpl.sendVolunteerApprovalEmail(
-                req.getEmail(),
-                autoUsername,
-                randomPassword,
-                user.getRole().name()
-        );
+        userRepository.save(volunteer);
     }
 
     private String generateRandomPassword() {

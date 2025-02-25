@@ -8,36 +8,76 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 @Entity(name = "Volunteer")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "volunteers", uniqueConstraints = {@UniqueConstraint(columnNames = {"`email`"})})
+@Table(name = "volunteers")
+@PrimaryKeyJoinColumn(name = "user_id")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Volunteer {
+public class Volunteer extends User{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idVolunteer;
-    private String name;
-    private String paternalSurname;
-    private String maternalSurname;
-    @Column(unique=true)
-    private String dni;
-    @Column(unique=true)
-    private String email;
-    private LocalDate birthdate;
-    @Column(unique=true)
-    private String phoneNumber;
-    private String codeNumber;
-    private String country;
-    private String region;
-    private String motivation;
-    @Enumerated(EnumType.STRING)
-    private EstimatedHours estimatedHours;
     @Enumerated(EnumType.STRING)
     private VolunteerStatus status = VolunteerStatus.PENDING;
     private String adminComments;
+
+    @ManyToOne
+    @JoinColumn(name = "applied_area_id")
+    private Area appliedArea;
+
+    public Volunteer(
+            String name,
+            String paternalSurname,
+            String maternalSurname,
+            String dni,
+            String email,
+            LocalDate birthdate,
+            String phoneNumber,
+            String codeNumber,
+            String country,
+            String region,
+            String motivation,
+            EstimatedHours estimatedHours,
+            VolunteerStatus status,
+            String adminComments,
+            Area appliedArea
+    ) {
+        super(
+                null,
+                null,
+                null,
+                Role.MAKER,
+                name,
+                paternalSurname,
+                maternalSurname,
+                dni,
+                email,
+                calculateAge(birthdate),
+                birthdate,
+                phoneNumber,
+                codeNumber,
+                country,
+                region,
+                motivation,
+                estimatedHours,
+                false,
+                false,
+                null
+        );
+        this.status = status;
+        this.adminComments = adminComments;
+        this.appliedArea = appliedArea;
+
+        if (getAge() < 16 || getAge() > 100) {
+            throw new IllegalArgumentException("La edad debe estar entre 16 y 100 años.");
+        }
+    }
+
+    private static int calculateAge(LocalDate birthdate) {
+        if (birthdate == null) return 0;
+        return Period.between(birthdate, LocalDate.now()).getYears();
+    }
 }
