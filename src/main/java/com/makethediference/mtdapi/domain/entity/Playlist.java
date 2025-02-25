@@ -22,4 +22,8 @@ public class Playlist {
     @Column(unique = true)
     private String directUrl;
     private boolean enabled = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
 }

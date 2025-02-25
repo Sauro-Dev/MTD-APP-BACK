@@ -20,4 +20,8 @@ public class LandingFiles {
     Long idLandingFiles;
     String  fileTypes;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id")
+    private Admin admin;
+
 }
