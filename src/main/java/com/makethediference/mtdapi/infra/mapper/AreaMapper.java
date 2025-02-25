@@ -25,7 +25,7 @@ public class AreaMapper {
                 area.getAreaId(),
                 area.getName(),
                 area.getColor(),
-                area.getVolunteers().size()
+                area.getUsers().size()
         );
     }
 }

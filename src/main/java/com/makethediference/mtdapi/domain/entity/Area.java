@@ -23,7 +23,7 @@ public class Area {
     private String color;
 
     @OneToMany(mappedBy = "appliedArea", fetch = FetchType.LAZY)
-    private List<Volunteer> volunteers = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "area", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Activity> activities;

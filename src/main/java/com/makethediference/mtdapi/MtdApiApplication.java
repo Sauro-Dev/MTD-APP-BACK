@@ -31,25 +31,25 @@ public class MtdApiApplication {
             boolean existsByPhoneNumber = userRepository.findByPhoneNumber("123456789").isPresent();
 
             if (!existsByEmail && !existsByUsername && !existsByPhoneNumber) {
-                Admin defaultAdmin = new Admin();
-                defaultAdmin.setUsername("admin");
-                defaultAdmin.setPassword(passwordEncoder.encode("admin123"));
-                defaultAdmin.setRole(Role.ADMIN);
-                defaultAdmin.setName("Luis");
-                defaultAdmin.setPaternalSurname("Mostacero");
-                defaultAdmin.setMaternalSurname("Cieza");
-                LocalDate birth = LocalDate.of(1980, 1, 1);
-                defaultAdmin.setBirthdate(birth);
-                defaultAdmin.setDni("00000000");
-                defaultAdmin.setEmail("admin@admin.com");
-                defaultAdmin.setPhoneNumber("123456789");
-                defaultAdmin.setCodeNumber("+51");
-                defaultAdmin.setCountry("Peru");
-                defaultAdmin.setRegion("La Libertad");
-                defaultAdmin.setMotivation("Luisda Luisda Luisda Luisda Luisda Luisda");
-                defaultAdmin.setEstimatedHours(EstimatedHours.PLUS_TEN);
-                defaultAdmin.setEnabled(true);
-                defaultAdmin.setFirstLogin(true);
+                Admin defaultAdmin = Admin.builder()
+                        .username("admin")
+                        .password(passwordEncoder.encode("admin123"))
+                        .role(Role.ADMIN)
+                        .name("Luis")
+                        .paternalSurname("Mostacero")
+                        .maternalSurname("Cieza")
+                        .birthdate(LocalDate.of(1980, 1, 1))
+                        .dni("00000000")
+                        .email("admin@admin.com")
+                        .phoneNumber("123456789")
+                        .codeNumber("+51")
+                        .country("Peru")
+                        .region("La Libertad")
+                        .motivation("Luisda Luisda Luisda Luisda Luisda Luisda")
+                        .estimatedHours(EstimatedHours.PLUS_TEN)
+                        .enabled(true)
+                        .firstLogin(true)
+                        .build();
 
                 userRepository.save(defaultAdmin);
             }

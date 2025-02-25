@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface VolunteerRepository extends JpaRepository<Volunteer, Long> {
     List<Volunteer> findByStatus(VolunteerStatus status);
-    List<Volunteer> findByAppliedAreaAreaId(Long areaId);
+    List<Volunteer> findByAppliedArea_AreaId(Long areaId);
     boolean existsByEmail(String email);
     boolean existsByDni(String dni);
     boolean existsByPhoneNumber(String phoneNumber);
