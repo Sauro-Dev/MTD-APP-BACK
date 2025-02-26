@@ -144,6 +144,12 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.30.28</version>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>

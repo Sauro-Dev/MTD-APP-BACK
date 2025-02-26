@@ -7,14 +7,12 @@ import com.makethediference.mtdapi.domain.entity.User;
 import com.makethediference.mtdapi.infra.repository.LandingFilesRepository;
 import com.makethediference.mtdapi.infra.repository.UserRepository;
 import com.makethediference.mtdapi.service.LandingFilesService;
+import com.makethediference.mtdapi.service.aws.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,36 +25,10 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     private final UserRepository userRepository;
 
     private static final Set<String> ALLOWED_TYPES = Set.of("image/png", "image/jpeg", "image/webp", "application/pdf");
-    private static final String UPLOAD_DIR = "uploads/landing_files/";
-
-
-    private String storeFile(MultipartFile file) {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("El archivo no puede estar vacío.");
-        }
-        if (!ALLOWED_TYPES.contains(file.getContentType())) {
-            throw new IllegalArgumentException("Formato no permitido. Solo PNG, JPG, WEBP y PDF.");
-        }
-        try {
-            Path uploadPath = Path.of(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path filePath = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            return fileName;
-        } catch (IOException e) {
-            throw new RuntimeException("Error al guardar el archivo.", e);
-        }
-    }
-
+    private final S3Service s3Service;
 
     @Override
     public LandingFiles saveLandingFile(MultipartFile file, Long adminId, FileSector fileSector) {
-        // Almacenamos el archivo y obtenemos el nombre guardado
-        String storedFileName = storeFile(file);
-
         // Verificamos que el usuario sea un administrador
         User user = userRepository.findById(adminId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
@@ -64,24 +36,26 @@ public class LandingFilesServiceImpl implements LandingFilesService {
             throw new IllegalArgumentException("El usuario debe ser un administrador para subir archivos.");
         }
 
-        // Creamos la entidad y asignamos los datos, incluyendo el FileSector
+        // Subimos el archivo a S3
+        String fileKey = s3Service.uploadFile(file);
+
+        // Creamos la entidad y asignamos los datos
         LandingFiles landingFile = new LandingFiles();
         landingFile.setFileTypes(file.getContentType());
-        landingFile.setFileName(storedFileName);
+        landingFile.setFileName(fileKey);         // <-- Guardamos el "key" que devuelve S3
         landingFile.setFileSector(fileSector);
         landingFile.setAdmin((Admin) user);
 
         return landingFilesRepository.save(landingFile);
     }
 
-
     @Override
     public Optional<LandingFiles> updateLandingFile(Long id, MultipartFile file) {
         return landingFilesRepository.findById(id).map(existingFile -> {
-            // Almacenamos el nuevo archivo y actualizamos la entidad
-            String storedFileName = storeFile(file);
+            // Subir el nuevo archivo a S3 y actualizar la entidad
+            String newFileKey = s3Service.uploadFile(file);
             existingFile.setFileTypes(file.getContentType());
-            existingFile.setFileName(storedFileName);
+            existingFile.setFileName(newFileKey);
             return landingFilesRepository.save(existingFile);
         });
     }
@@ -93,7 +67,20 @@ public class LandingFilesServiceImpl implements LandingFilesService {
 
     @Override
     public List<LandingFiles> getAllLandingFiles() {
-        return landingFilesRepository.findAll();
+        List<LandingFiles> files = landingFilesRepository.findAll();
+        // Para cada registro, si el objeto existe en S3, reemplazamos el fileName (que es el key)
+        // por una URL firmada
+        files.forEach(file -> {
+            String s3Key = file.getFileName();
+            if (s3Service.doesObjectExist(s3Key)) {
+                URL presignedUrl = s3Service.generatePresignedUrl(s3Key);
+                file.setFileName(presignedUrl.toString());
+            } else {
+                // Si el objeto ya no existe, puedes dejarlo en null o asignar un mensaje
+                file.setFileName("El recurso no se encuentra disponible");
+            }
+        });
+        return files;
     }
 
     @Override
