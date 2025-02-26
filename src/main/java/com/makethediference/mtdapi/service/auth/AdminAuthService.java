@@ -15,6 +15,46 @@ public class AdminAuthService implements AuthService {
         }
     }
 
+    @Override
+    public void authorizeRegisterPlaylist() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden registrar playlists.");
+        }
+    }
+
+    @Override
+    public void authorizeDisablePlaylist() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden deshabilitar playlists.");
+        }
+    }
+
+    @Override
+    public void authorizeEnablePlaylist()  {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden habilitar playlists.");
+        }
+    }
+
+    @Override
+    public void authorizeValidateVolunteer() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden validar voluntarios.");
+        }
+    }
+
+    @Override
+    public void authorizeRegisterArea() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden registrar areas.");
+        }
+    }
+
     public void authorizeAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {

@@ -1,0 +1,36 @@
+package com.makethediference.mtdapi.domain.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity(name = "LandingFiles")
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "landingFiles")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class LandingFiles {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idLandingFiles;
+
+    // Se usa para almacenar el content type, pero se podría renombrar o separar según convenga
+    private String fileTypes;
+
+    // Nuevo campo para almacenar el nombre del archivo (o ruta relativa)
+    private String fileName;
+
+    @Enumerated(EnumType.STRING)
+    private FileSector fileSector;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id")
+    @JsonIgnore
+    private Admin admin;
+}

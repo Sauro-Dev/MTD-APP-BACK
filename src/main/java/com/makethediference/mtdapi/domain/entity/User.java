@@ -5,11 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -17,34 +19,47 @@ import java.util.Objects;
 
 @Entity(name = "User")
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
+@Table(name = "users", uniqueConstraints = {@UniqueConstraint(columnNames = {"`username`"})})
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 public abstract class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idUser;
+    private Long userId;
     @Column(unique = true)
     private String username;
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
     private String name;
-    private String surname;
+    private String paternalSurname;
+    private String maternalSurname;
     @Column(unique = true)
     private String dni;
     @Column(unique = true)
     private String email;
     private int age;
+    private LocalDate birthdate;
     @Column(unique = true)
     private String phoneNumber;
+    private String codeNumber;
     private String country;
     private String region;
     private String motivation;
+    @Enumerated(EnumType.STRING)
+    private EstimatedHours estimatedHours;
     private boolean enabled = true;
     private boolean firstLogin;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "area_id")
+    private Area appliedArea;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Attendance> attendances;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -76,7 +91,7 @@ public abstract class User implements UserDetails {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         User user = (User) o;
-        return getIdUser() != null && Objects.equals(getIdUser(), user.getIdUser());
+        return getUserId() != null && Objects.equals(getUserId(), user.getUserId());
     }
 
     @Override
