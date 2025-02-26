@@ -21,6 +21,6 @@ public record ListUser(
         String country,
         String region,
         String motivation,
-        EstimatedHours estimatedHours
-) {
-}
+        EstimatedHours estimatedHours,
+        String area
+) {}

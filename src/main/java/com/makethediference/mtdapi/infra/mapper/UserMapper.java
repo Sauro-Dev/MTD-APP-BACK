@@ -70,7 +70,8 @@ public class UserMapper {
                 user.getCountry(),
                 user.getRegion(),
                 user.getMotivation(),
-                user.getEstimatedHours()
+                user.getEstimatedHours(),
+                user.getAppliedArea() != null ? user.getAppliedArea().getName() : null
         );
     }
 
