@@ -1,5 +1,6 @@
 package com.makethediference.mtdapi.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,7 +26,11 @@ public class LandingFiles {
     // Nuevo campo para almacenar el nombre del archivo (o ruta relativa)
     private String fileName;
 
+    @Enumerated(EnumType.STRING)
+    private FileSector fileSector;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id")
+    @JsonIgnore
     private Admin admin;
 }

@@ -1,6 +1,7 @@
 package com.makethediference.mtdapi.service.impl;
 
 import com.makethediference.mtdapi.domain.entity.Admin;
+import com.makethediference.mtdapi.domain.entity.FileSector;
 import com.makethediference.mtdapi.domain.entity.LandingFiles;
 import com.makethediference.mtdapi.domain.entity.User;
 import com.makethediference.mtdapi.infra.repository.LandingFilesRepository;
@@ -50,8 +51,9 @@ public class LandingFilesServiceImpl implements LandingFilesService {
         }
     }
 
+
     @Override
-    public LandingFiles saveLandingFile(MultipartFile file, Long adminId) {
+    public LandingFiles saveLandingFile(MultipartFile file, Long adminId, FileSector fileSector) {
         // Almacenamos el archivo y obtenemos el nombre guardado
         String storedFileName = storeFile(file);
 
@@ -62,14 +64,16 @@ public class LandingFilesServiceImpl implements LandingFilesService {
             throw new IllegalArgumentException("El usuario debe ser un administrador para subir archivos.");
         }
 
-        // Creamos la entidad y asignamos el admin y el nombre del archivo
+        // Creamos la entidad y asignamos los datos, incluyendo el FileSector
         LandingFiles landingFile = new LandingFiles();
         landingFile.setFileTypes(file.getContentType());
         landingFile.setFileName(storedFileName);
+        landingFile.setFileSector(fileSector);
         landingFile.setAdmin((Admin) user);
 
         return landingFilesRepository.save(landingFile);
     }
+
 
     @Override
     public Optional<LandingFiles> updateLandingFile(Long id, MultipartFile file) {
@@ -77,6 +81,7 @@ public class LandingFilesServiceImpl implements LandingFilesService {
             // Almacenamos el nuevo archivo y actualizamos la entidad
             String storedFileName = storeFile(file);
             existingFile.setFileTypes(file.getContentType());
+            existingFile.setFileName(storedFileName);
             return landingFilesRepository.save(existingFile);
         });
     }
