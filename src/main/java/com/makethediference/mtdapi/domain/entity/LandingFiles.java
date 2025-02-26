@@ -17,11 +17,15 @@ public class LandingFiles {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long idLandingFiles;
-    String  fileTypes;
+    private Long idLandingFiles;
+
+    // Se usa para almacenar el content type, pero se podría renombrar o separar según convenga
+    private String fileTypes;
+
+    // Nuevo campo para almacenar el nombre del archivo (o ruta relativa)
+    private String fileName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id")
     private Admin admin;
-
 }
