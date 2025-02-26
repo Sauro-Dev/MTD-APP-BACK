@@ -1,5 +1,6 @@
 package com.makethediference.mtdapi.web.controller;
 
+import com.makethediference.mtdapi.domain.dto.volunteer.ApiResponse;
 import com.makethediference.mtdapi.domain.dto.volunteer.ValidateVolunteer;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerPending;
@@ -25,9 +26,10 @@ public class VolunteerController {
     @PostMapping("/form")
     @Transactional
     @PreAuthorize("isAnonymous()")
-    public ResponseEntity<String> createVolunteerRequest(@RequestBody @Valid VolunteerForm form) {
+    public ResponseEntity<ApiResponse> createVolunteerRequest(@RequestBody @Valid VolunteerForm form) {
         volunteerService.submitVolunteerForm(form);
-        return ResponseEntity.ok("Solicitud de voluntariado enviada correctamente.");
+        return ResponseEntity.ok(new ApiResponse("Solicitud de voluntariado enviada correctamente."));
+
     }
 
     @GetMapping("/pending")
