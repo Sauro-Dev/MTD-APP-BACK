@@ -28,31 +28,46 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     private final S3Service s3Service;
 
     @Override
-    public LandingFiles saveLandingFile(MultipartFile file, Long adminId, FileSector fileSector) {
-        // Verificamos que el usuario sea un administrador
+    public LandingFiles saveLandingFile(MultipartFile file, Long adminId, FileSector fileSector, String makerName, String description) {
+
+        if (!ALLOWED_TYPES.contains(file.getContentType())) {
+            throw new IllegalArgumentException("Tipo de archivo no permitido. Solo se aceptan PNG, JPG, WEBP y PDF.");
+        }
+
+        if (fileSector == FileSector.FEATURED_MAKER) {
+            long makerCount = landingFilesRepository.countByFileSector(FileSector.FEATURED_MAKER);
+            if (makerCount >= 10) {
+                throw new IllegalArgumentException("No se pueden registrar más de 10 Makers Destacados.");
+            }
+        }
+
         User user = userRepository.findById(adminId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         if (!(user instanceof Admin)) {
             throw new IllegalArgumentException("El usuario debe ser un administrador para subir archivos.");
         }
 
-        // Subimos el archivo a S3
         String fileKey = s3Service.uploadFile(file);
 
-        // Creamos la entidad y asignamos los datos
         LandingFiles landingFile = new LandingFiles();
         landingFile.setFileTypes(file.getContentType());
-        landingFile.setFileName(fileKey);         // <-- Guardamos el "key" que devuelve S3
+        landingFile.setFileName(fileKey);
         landingFile.setFileSector(fileSector);
         landingFile.setAdmin((Admin) user);
+
+        if (fileSector == FileSector.FEATURED_MAKER) {
+            landingFile.setMakerName(makerName);
+            landingFile.setDescription(description);
+        }
 
         return landingFilesRepository.save(landingFile);
     }
 
+
+
     @Override
     public Optional<LandingFiles> updateLandingFile(Long id, MultipartFile file) {
         return landingFilesRepository.findById(id).map(existingFile -> {
-            // Subir el nuevo archivo a S3 y actualizar la entidad
             String newFileKey = s3Service.uploadFile(file);
             existingFile.setFileTypes(file.getContentType());
             existingFile.setFileName(newFileKey);
@@ -68,15 +83,12 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     @Override
     public List<LandingFiles> getAllLandingFiles() {
         List<LandingFiles> files = landingFilesRepository.findAll();
-        // Para cada registro, si el objeto existe en S3, reemplazamos el fileName (que es el key)
-        // por una URL firmada
         files.forEach(file -> {
             String s3Key = file.getFileName();
             if (s3Service.doesObjectExist(s3Key)) {
                 URL presignedUrl = s3Service.generatePresignedUrl(s3Key);
                 file.setFileName(presignedUrl.toString());
             } else {
-                // Si el objeto ya no existe, puedes dejarlo en null o asignar un mensaje
                 file.setFileName("El recurso no se encuentra disponible");
             }
         });
@@ -86,7 +98,6 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     @Override
     public boolean disableLandingFile(Long id) {
         return landingFilesRepository.findById(id).map(existingFile -> {
-            // Se simula el deshabilitado marcando el archivo como "DISABLED"
             existingFile.setFileTypes("DISABLED");
             landingFilesRepository.save(existingFile);
             return true;

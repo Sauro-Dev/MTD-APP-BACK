@@ -20,10 +20,8 @@ public class LandingFiles {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idLandingFiles;
 
-    // Se usa para almacenar el content type, pero se podría renombrar o separar según convenga
     private String fileTypes;
 
-    // Nuevo campo para almacenar el nombre del archivo (o ruta relativa)
     private String fileName;
 
     @Enumerated(EnumType.STRING)
@@ -33,4 +31,10 @@ public class LandingFiles {
     @JoinColumn(name = "admin_id")
     @JsonIgnore
     private Admin admin;
+
+    @Column(nullable = true)
+    private String makerName;
+
+    @Column(nullable = true)
+    private String description;
 }

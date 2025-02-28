@@ -30,11 +30,19 @@ public class LandingFilesController {
 
     @PostMapping("/register")
     @Transactional
-    public ResponseEntity<LandingFiles> uploadFile(
+    public ResponseEntity<?> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam("adminId") Long adminId,
-            @RequestParam("fileSector") FileSector fileSector) {
-        LandingFiles savedFile = landingFilesService.saveLandingFile(file, adminId, fileSector);
+            @RequestParam("fileSector") FileSector fileSector,
+            @RequestParam(value = "makerName", required = false) String makerName,
+            @RequestParam(value = "description", required = false) String description) {
+
+        if (!ALLOWED_TYPES.contains(file.getContentType())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Tipo de archivo no permitido. Solo se aceptan PNG, JPG, WEBP y PDF.");
+        }
+
+        LandingFiles savedFile = landingFilesService.saveLandingFile(file, adminId, fileSector, makerName, description);
         return ResponseEntity.ok(savedFile);
     }
 
