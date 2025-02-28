@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LandingFilesService {
-    LandingFiles saveLandingFile(MultipartFile file, Long adminId, FileSector fileSector);
+    LandingFiles saveLandingFile(MultipartFile file, Long adminId, FileSector fileSector, String makerName, String description);
     Optional<LandingFiles> getLandingFileById(Long id);
     List<LandingFiles> getAllLandingFiles();
     Optional<LandingFiles> updateLandingFile(Long id, MultipartFile file);

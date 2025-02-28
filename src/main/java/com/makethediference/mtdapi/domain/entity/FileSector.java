@@ -4,5 +4,6 @@ public enum FileSector {
     NEWS,
     MAGAZINE,
     BANNER,
-    HISTORY
+    HISTORY,
+    FEATURED_MAKER
 }
