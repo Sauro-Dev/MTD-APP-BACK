@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -70,6 +71,20 @@ public class S3Service {
                     .build();
 
             return presigner.presignGetObject(presignRequest).url();
+        }
+    }
+
+    public byte[] downloadFile(String fileKey) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileKey)
+                .build();
+        try {
+            // Obtiene el objeto como bytes
+            ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
+            return objectBytes.asByteArray();
+        } catch (S3Exception e) {
+            throw new RuntimeException("Error al descargar archivo de S3", e);
         }
     }
 
