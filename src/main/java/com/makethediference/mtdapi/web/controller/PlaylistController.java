@@ -12,7 +12,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/v1/playlists")
@@ -34,11 +36,14 @@ public class PlaylistController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllPlaylists() {
         List<ListPlaylist> playlists = playlistService.getPlaylists();
+
         if (playlists.isEmpty()) {
-            return ResponseEntity.ok("No se encontraron playlists habilitadas en la BD");
-        } else {
-            return ResponseEntity.ok(playlists);
+            // Devuelves JSON con una clave "message"
+            Map<String, String> body = new HashMap<>();
+            body.put("message", "No se encontraron playlists habilitadas en la BD");
+            return ResponseEntity.ok(body);
         }
+        return ResponseEntity.ok(playlists);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

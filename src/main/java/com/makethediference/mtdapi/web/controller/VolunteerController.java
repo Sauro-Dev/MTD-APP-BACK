@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -35,9 +36,12 @@ public class VolunteerController {
     @GetMapping("/pending")
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<VolunteerPending>> getPendingVolunteers() {
-        // Llama al nuevo método del servicio
+    public ResponseEntity<?> getPendingVolunteers() {
         List<VolunteerPending> pendingList = volunteerService.getPendingVolunteers();
+
+        if (pendingList.isEmpty()) {
+            return ResponseEntity.ok(Collections.singletonMap("message", "No hay voluntarios pendientes"));
+        }
         return ResponseEntity.ok(pendingList);
     }
 
