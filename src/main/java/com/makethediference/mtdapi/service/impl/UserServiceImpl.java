@@ -2,6 +2,8 @@ package com.makethediference.mtdapi.service.impl;
 
 import com.makethediference.mtdapi.domain.dto.user.*;
 import com.makethediference.mtdapi.domain.entity.User;
+import com.makethediference.mtdapi.domain.entity.Volunteer;
+import com.makethediference.mtdapi.domain.entity.VolunteerStatus;
 import com.makethediference.mtdapi.infra.mapper.UserMapper;
 import com.makethediference.mtdapi.infra.repository.UserRepository;
 import com.makethediference.mtdapi.infra.security.JwtService;
@@ -102,6 +104,12 @@ public class UserServiceImpl implements UserService {
     public List<ListUser> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
+                .filter(user -> {
+                    if (user instanceof Volunteer vol) {
+                        return vol.getStatus() == VolunteerStatus.APPROVED;
+                    }
+                    return true;
+                })
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -110,6 +118,13 @@ public class UserServiceImpl implements UserService {
     public ListUser getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+        if (user instanceof Volunteer vol) {
+            if (vol.getStatus() == VolunteerStatus.PENDING) {
+                throw new RuntimeException("El voluntario con id " + id + " se encuentra en estado PENDIENTE.");
+            } else if (vol.getStatus() == VolunteerStatus.REJECTED) {
+                throw new RuntimeException("El voluntario con id " + id + " ha sido RECHAZADO.");
+            }
+        }
         return userMapper.toDto(user);
     }
 

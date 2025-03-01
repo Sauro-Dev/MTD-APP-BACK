@@ -102,11 +102,12 @@ public class VolunteerServiceImpl implements VolunteerService {
                     randomPassword,
                     volunteer.getRole().name()
             );
+            volunteer.setValidationDate(LocalDateTime.now());
+            userRepository.save(volunteer);
         } else {
-            volunteer.setStatus(VolunteerStatus.REJECTED);
+            // Si no se aprueba, se elimina el registro
+            volunteerRepository.delete(volunteer);
         }
-        volunteer.setValidationDate(LocalDateTime.now());
-        userRepository.save(volunteer);
     }
 
     private String generateRandomPassword() {
