@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
+
 @Entity(name = "Volunteer")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "volunteers")
@@ -22,5 +24,7 @@ public class Volunteer extends User{
     @Enumerated(EnumType.STRING)
     private VolunteerStatus status = VolunteerStatus.PENDING;
     private String adminComments;
+    private LocalDateTime submissionDate;
+    private LocalDateTime validationDate;
 
 }

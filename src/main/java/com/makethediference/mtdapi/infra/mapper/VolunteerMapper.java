@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 
 @Component
@@ -45,17 +46,30 @@ public class VolunteerMapper {
                 .enabled(false)
                 .firstLogin(false)
                 .role(Role.MAKER)
+                .submissionDate(LocalDateTime.now())
                 .build();
     }
 
     public VolunteerPending toPending(Volunteer volunteer) {
+        var area = volunteer.getAppliedArea();
+        Long areaId = (area != null) ? area.getAreaId() :  null;
+        String areaName = (area != null) ? area.getName() : null;
         return new VolunteerPending(
                 volunteer.getUserId(),
                 volunteer.getName(),
                 volunteer.getPaternalSurname(),
                 volunteer.getMaternalSurname(),
                 volunteer.getEmail(),
-                volunteer.getStatus()
+                volunteer.getDni(),
+                volunteer.getPhoneNumber(),
+                volunteer.getCodeNumber(),
+                volunteer.getBirthdate(),
+                areaId,
+                areaName,
+                volunteer.getEstimatedHours(),
+                volunteer.getMotivation(),
+                volunteer.getStatus(),
+                volunteer.getSubmissionDate()
         );
     }
 

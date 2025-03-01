@@ -89,6 +89,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(autoUsername);
         user.setPassword(passwordEncoder.encode(data.password()));
         user.setFirstLogin(true);
+        user.setEnabled(true);
         userRepository.save(user);
 
         String token = jwtService.getToken(user, user);
