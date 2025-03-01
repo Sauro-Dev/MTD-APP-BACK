@@ -1,4 +1,6 @@
 package com.makethediference.mtdapi.domain.dto.volunteer;
 
-public record ApiResponse(String message) {
+public record ApiResponse(
+        String message
+) {
 }
