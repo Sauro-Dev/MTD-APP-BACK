@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,13 +44,13 @@ public class VolunteerServiceImpl implements VolunteerService {
             throw new IllegalArgumentException("El teléfono ya está en uso en voluntarios pendientes.");
         }
         if (userRepository.existsByEmail(form.email())) {
-            throw new IllegalArgumentException("El email de la solicitud ya esta registrado en un usuario del sistema");
+            throw new IllegalArgumentException("El email de la solicitud ya está registrado en un usuario del sistema");
         }
         if (userRepository.existsByPhoneNumber(form.phoneNumber())) {
-            throw new IllegalArgumentException("El numero de la solicitud ya esta registrado en un usuario del sistema");
+            throw new IllegalArgumentException("El numero de la solicitud ya está registrado en un usuario del sistema");
         }
         if (userRepository.existsByDni(form.dni())) {
-            throw new IllegalArgumentException("El DNI de la solicitud ya esta  registrado en un usuario del sistema");
+            throw new IllegalArgumentException("El DNI de la solicitud ya está registrado en un usuario del sistema");
         }
 
         Volunteer request = volunteerMapper.toEntity(form);
@@ -59,10 +60,14 @@ public class VolunteerServiceImpl implements VolunteerService {
     @Override
     public List<VolunteerPending> getPendingVolunteers() {
         List<Volunteer> volunteers = volunteerRepository.findByStatus(VolunteerStatus.PENDING);
-
         return volunteers.stream()
                 .map(volunteerMapper::toPending)
                 .toList();
+    }
+
+    @Override
+    public Optional<VolunteerPending> getVolunteerById(Long id) {
+        return volunteerRepository.findById(id).map(volunteerMapper::toPending); //  Mantenemos la conversión correcta
     }
 
     @Override
@@ -72,7 +77,7 @@ public class VolunteerServiceImpl implements VolunteerService {
                         "Solicitud de voluntario no encontrada con ID: " + dto.userId()));
 
         if (volunteer.getAppliedArea() == null) {
-            throw new IllegalStateException("El voluntario no tiene un área asignada");
+            throw new IllegalStateException("El voluntario no tiene un area asignada");
         }
 
         if (volunteer.getStatus() != VolunteerStatus.PENDING) {
@@ -105,7 +110,6 @@ public class VolunteerServiceImpl implements VolunteerService {
             volunteer.setValidationDate(LocalDateTime.now());
             userRepository.save(volunteer);
         } else {
-            // Si no se aprueba, se elimina el registro
             volunteerRepository.delete(volunteer);
         }
     }

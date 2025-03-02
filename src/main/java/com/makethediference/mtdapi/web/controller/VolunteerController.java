@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/volunteers")
@@ -30,7 +31,6 @@ public class VolunteerController {
     public ResponseEntity<ApiResponse> createVolunteerRequest(@RequestBody @Valid VolunteerForm form) {
         volunteerService.submitVolunteerForm(form);
         return ResponseEntity.ok(new ApiResponse("Solicitud de voluntariado enviada correctamente."));
-
     }
 
     @GetMapping("/pending")
@@ -38,11 +38,18 @@ public class VolunteerController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getPendingVolunteers() {
         List<VolunteerPending> pendingList = volunteerService.getPendingVolunteers();
-
         if (pendingList.isEmpty()) {
             return ResponseEntity.ok(Collections.singletonMap("message", "No hay voluntarios pendientes"));
         }
         return ResponseEntity.ok(pendingList);
+    }
+
+    @GetMapping("/{id}") //  Nuevo endpoint para obtener un voluntario por ID
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<VolunteerPending> getVolunteerById(@PathVariable Long id) {
+        Optional<VolunteerPending> volunteer = volunteerService.getVolunteerById(id);
+        return volunteer.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/validate")

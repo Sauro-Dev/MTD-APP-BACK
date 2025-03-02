@@ -3,12 +3,13 @@ package com.makethediference.mtdapi.service;
 import com.makethediference.mtdapi.domain.dto.volunteer.ValidateVolunteer;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerPending;
-import com.makethediference.mtdapi.domain.entity.Volunteer;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VolunteerService {
     void submitVolunteerForm(VolunteerForm form);
     List<VolunteerPending> getPendingVolunteers();
+    Optional<VolunteerPending> getVolunteerById(Long id); // Recuperamos esta función
     void validateRequest(ValidateVolunteer dto);
 }
