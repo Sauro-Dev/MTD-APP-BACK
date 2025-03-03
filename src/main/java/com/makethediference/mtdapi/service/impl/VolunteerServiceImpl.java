@@ -67,7 +67,9 @@ public class VolunteerServiceImpl implements VolunteerService {
 
     @Override
     public Optional<VolunteerPending> getVolunteerById(Long id) {
-        return volunteerRepository.findById(id).map(volunteerMapper::toPending); //  Mantenemos la conversión correcta
+        return volunteerRepository.findById(id)
+                .filter(volunteer ->  volunteer.getStatus() == VolunteerStatus.PENDING)
+                .map(volunteerMapper::toPending);
     }
 
     @Override

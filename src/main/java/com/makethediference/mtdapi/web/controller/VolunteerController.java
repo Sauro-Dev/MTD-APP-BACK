@@ -8,12 +8,12 @@ import com.makethediference.mtdapi.service.VolunteerService;
 import com.makethediference.mtdapi.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,17 +39,24 @@ public class VolunteerController {
     public ResponseEntity<?> getPendingVolunteers() {
         List<VolunteerPending> pendingList = volunteerService.getPendingVolunteers();
         if (pendingList.isEmpty()) {
-            return ResponseEntity.ok(Collections.singletonMap("message", "No hay voluntarios pendientes"));
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse("No se encontraron solicitud de voluntariado pendientes"));
         }
         return ResponseEntity.ok(pendingList);
     }
 
-    @GetMapping("/{id}") //  Nuevo endpoint para obtener un voluntario por ID
+    @GetMapping("/pending/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<VolunteerPending> getVolunteerById(@PathVariable Long id) {
+    public ResponseEntity<?> getVolunteerById(@PathVariable Long id) {
         Optional<VolunteerPending> volunteer = volunteerService.getVolunteerById(id);
-        return volunteer.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (volunteer.isPresent()) {
+            return ResponseEntity.ok(volunteer.get());
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse("No se encontró un voluntario pendiente con el ID: " + id));
+        }
     }
 
     @PutMapping("/validate")

@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface VolunteerService {
     void submitVolunteerForm(VolunteerForm form);
     List<VolunteerPending> getPendingVolunteers();
-    Optional<VolunteerPending> getVolunteerById(Long id); // Recuperamos esta función
+    Optional<VolunteerPending> getVolunteerById(Long id);
     void validateRequest(ValidateVolunteer dto);
 }

@@ -7,6 +7,7 @@ import com.makethediference.mtdapi.domain.entity.Role;
 import com.makethediference.mtdapi.domain.entity.Volunteer;
 import com.makethediference.mtdapi.domain.entity.VolunteerStatus;
 import com.makethediference.mtdapi.infra.repository.AreaRepository;
+import com.makethediference.mtdapi.infra.repository.VolunteerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ import java.time.Period;
 public class VolunteerMapper {
 
     private final AreaRepository areaRepository;
+    private final VolunteerRepository volunteerRepository;
 
     public Volunteer toEntity(VolunteerForm form) {
         Area area = areaRepository.findById(form.areaId())
