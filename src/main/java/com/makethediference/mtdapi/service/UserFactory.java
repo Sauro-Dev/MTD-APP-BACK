@@ -9,6 +9,7 @@ public class UserFactory {
             case MAKER -> Maker.builder().build();
             case COUNCIL -> Council.builder().build();
             case COORDINATOR -> Coordinator.builder().build();
+            case DIRECTOR -> Director.builder().build();
         };
     }
 }

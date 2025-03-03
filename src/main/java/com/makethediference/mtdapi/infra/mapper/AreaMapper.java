@@ -15,7 +15,8 @@ public class AreaMapper {
                 null,
                 dto.name(),
                 dto.color(),
-                Collections.emptyList()
+                Collections.emptyList(),
+                null
         );
     }
 

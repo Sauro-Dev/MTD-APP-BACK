@@ -4,5 +4,6 @@ public enum Role {
     ADMIN,
     COUNCIL,
     MAKER,
-    COORDINATOR
+    COORDINATOR,
+    DIRECTOR
 }

@@ -58,9 +58,6 @@ public abstract class User implements UserDetails {
     @JoinColumn(name = "area_id")
     private Area appliedArea;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Attendance> attendances;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));

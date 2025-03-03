@@ -25,4 +25,8 @@ public class Area {
 
     @OneToMany(mappedBy = "area", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Activity> activities;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name= "schedule_id")
+    private Schedule schedule;
 }

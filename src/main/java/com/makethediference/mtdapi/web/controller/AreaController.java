@@ -35,7 +35,7 @@ public class AreaController {
         return ResponseEntity.ok(area);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'COUNCIL', 'COORDINATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'COUNCIL', 'COORDINATOR', 'DIRECTOR')")
     @GetMapping("/all")
     public ResponseEntity<List<ListArea>> getAllAreas() {
         return ResponseEntity.ok(areaService.getAllAreas());

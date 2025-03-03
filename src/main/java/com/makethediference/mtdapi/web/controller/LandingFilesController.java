@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +29,7 @@ public class LandingFilesController {
     private static final Set<String> ALLOWED_TYPES = Set.of("image/png", "image/jpeg", "image/webp", "application/pdf");
     private final S3Service s3Service;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<?> uploadFile(
@@ -71,6 +73,7 @@ public class LandingFilesController {
         return ResponseEntity.ok(files);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     @Transactional
     public ResponseEntity<LandingFiles> updateLandingFile(
@@ -80,6 +83,7 @@ public class LandingFilesController {
         return updatedFile.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/disable")
     @Transactional
     public ResponseEntity<Void> disableLandingFile(@PathVariable Long id) {

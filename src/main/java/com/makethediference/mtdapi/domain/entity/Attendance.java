@@ -9,7 +9,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 @Entity(name = "Attendance")
-@Table(name = "attendaces")
+@Table(name = "attendances")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,9 +21,5 @@ public class Attendance {
     private LocalDate registerDate;
     @Enumerated(EnumType.STRING)
     private AttStatus status;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
 }
