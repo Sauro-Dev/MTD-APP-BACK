@@ -24,7 +24,7 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     private final LandingFilesRepository landingFilesRepository;
     private final UserRepository userRepository;
 
-    private static final Set<String> ALLOWED_TYPES = Set.of("image/png", "image/jpeg", "image/webp", "application/pdf");
+    private static final Set<String> ALLOWED_TYPES = Set.of("image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf");
     private final S3Service s3Service;
 
     @Override
@@ -32,6 +32,18 @@ public class LandingFilesServiceImpl implements LandingFilesService {
 
         if (!ALLOWED_TYPES.contains(file.getContentType())) {
             throw new IllegalArgumentException("Tipo de archivo no permitido. Solo se aceptan PNG, JPG, WEBP y PDF.");
+        }
+
+        if (fileSector == FileSector.HISTORY) {
+            // Solo se permiten imágenes para HISTORY
+            if (!Set.of("image/png", "image/jpeg", "image/jpg", "image/webp").contains(file.getContentType())) {
+                throw new IllegalArgumentException("Solo se permiten imágenes para el sector HISTORY.");
+            }
+            // Verificar que no se haya cargado ya una imagen para HISTORY
+            long historyCount = landingFilesRepository.countByFileSector(FileSector.HISTORY);
+            if (historyCount >= 1) {
+                throw new IllegalArgumentException("Ya existe una imagen para el sector HISTORY.");
+            }
         }
 
         if (fileSector == FileSector.FEATURED_MAKER) {
