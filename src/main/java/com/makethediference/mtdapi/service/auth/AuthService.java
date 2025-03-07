@@ -7,5 +7,7 @@ public interface AuthService {
     void authorizeEnablePlaylist();
     void authorizeValidateVolunteer();
     void authorizeRegisterArea();
+    void authorizeUploadLandingFile();
+    void authorizeDisableLandingFile();
     void authorizeAdmin();
 }

@@ -3,6 +3,7 @@ package com.makethediference.mtdapi.web.controller;
 import com.makethediference.mtdapi.domain.entity.FileSector;
 import com.makethediference.mtdapi.domain.entity.LandingFiles;
 import com.makethediference.mtdapi.service.LandingFilesService;
+import com.makethediference.mtdapi.service.auth.AuthService;
 import com.makethediference.mtdapi.service.aws.S3Service;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -25,12 +26,14 @@ import java.util.Set;
 @CrossOrigin("*")
 public class LandingFilesController {
 
+    private final AuthService authService;
     private final LandingFilesService landingFilesService;
     private static final Set<String> ALLOWED_TYPES = Set.of("image/png", "image/jpeg", "image/webp", "application/pdf");
     private final S3Service s3Service;
 
     @PostMapping("/register")
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> uploadFile(
             @RequestParam("file") MultipartFile file,
             @RequestParam("adminId") Long adminId,
@@ -43,6 +46,7 @@ public class LandingFilesController {
                     .body("Tipo de archivo no permitido. Solo se aceptan PNG, JPG, WEBP y PDF.");
         }
 
+        authService.authorizeUploadLandingFile();
         LandingFiles savedFile = landingFilesService.saveLandingFile(file, adminId, fileSector, makerName, description);
         return ResponseEntity.ok(savedFile);
     }
@@ -72,7 +76,7 @@ public class LandingFilesController {
         return ResponseEntity.ok(files);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     @Transactional
     public ResponseEntity<LandingFiles> updateLandingFile(
             @PathVariable Long id,
@@ -81,14 +85,16 @@ public class LandingFilesController {
         return updatedFile.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PatchMapping("/{id}/disable")
+    @PatchMapping("/disable/{id}")
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> disableLandingFile(@PathVariable Long id) {
+        authService.authorizeDisableLandingFile();
         boolean disabled = landingFilesService.disableLandingFile(id);
         return disabled ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/{id}/download")
+    @GetMapping("/download/{id}")
     public ResponseEntity<?> downloadLandingFile(@PathVariable Long id) {
         Optional<LandingFiles> landingFileOpt = landingFilesService.getLandingFileById(id);
         if (landingFileOpt.isEmpty()) {

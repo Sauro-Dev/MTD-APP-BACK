@@ -55,6 +55,22 @@ public class AdminAuthService implements AuthService {
         }
     }
 
+    @Override
+    public void authorizeUploadLandingFile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden subir archivos para el Landing.");
+        }
+    }
+
+    @Override
+    public void authorizeDisableLandingFile(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getAuthorities().stream().noneMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new SecurityException("Acceso denegado: solo los administradores pueden deshabilitar archivos para el Landing.");
+        }
+    }
+
     public void authorizeAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getAuthorities().stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
