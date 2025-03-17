@@ -1,123 +1,115 @@
 package com.makethediference.mtdapi.service.aws;
 
-import lombok.RequiredArgsConstructor;
+import io.minio.*;
+import io.minio.errors.MinioException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.ResponseBytes;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
-import java.io.IOException;
-import java.net.URL;
-import java.time.Duration;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.io.InputStream;
 
 @Service
-@RequiredArgsConstructor
 public class S3Service {
 
-    @Value("${cloud.aws.region}")
-    private String awsRegion;
+    private final MinioClient minioClient;
 
-    @Value("${application.bucket.name}")
+    @Value("${CLOUDFLARE_R2_BUCKET_NAME}")
     private String bucketName;
 
-    private final S3Client s3Client;
+    @Value("${CLOUDFLARE_R2_ENDPOINT}")
+    private String endpoint;
 
+    public S3Service(MinioClient minioClient) {
+        this.minioClient = minioClient;
+    }
+
+    /**
+     * Sube un archivo a Cloudflare R2.
+     */
     public String uploadFile(MultipartFile file) {
         try {
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            InputStream fileStream = file.getInputStream();
 
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(fileName)
-                    .contentType(file.getContentType())
-                    .build();
+            System.out.println("🔥 Uploading file to Cloudflare R2:");
+            System.out.println("Name: " + fileName);
+            System.out.println("Type: " + file.getContentType());
+            System.out.println("Size: " + file.getSize());
 
-            s3Client.putObject(
-                    putObjectRequest,
-                    RequestBody.fromBytes(file.getBytes())
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileName)
+                            .stream(fileStream, file.getSize(), -1)
+                            .contentType(file.getContentType())
+                            .build()
             );
 
-            // Retorna el "key" del objeto, que luego podemos guardar en la DB
+            System.out.println("✅ Upload successful!");
             return fileName;
-
-        } catch (IOException e) {
-            throw new RuntimeException("Error al subir archivo a S3", e);
+        } catch (Exception e) {
+            e.printStackTrace();  // Print full error details
+            throw new RuntimeException("Error al subir archivo a Cloudflare R2: " + e.getMessage(), e);
         }
     }
 
-    public URL generatePresignedUrl(String fileKey) {
-        // Instanciar un S3Presigner (puede ser @Bean también)
-        try (S3Presigner presigner = S3Presigner.builder()
-                .region(Region.of(awsRegion))
-                .build()) {
-
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(fileKey)
-                    .build();
-
-            // Configurar tiempo de validez de la URL
-            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofMinutes(15))
-                    .getObjectRequest(getObjectRequest)
-                    .build();
-
-            return presigner.presignGetObject(presignRequest).url();
-        }
+    /**
+     * Genera la URL pública del archivo.
+     */
+    public String getFileUrl(String fileKey) {
+        return "https://pub-98b219d2225448e198655a0ecbea1653.r2.dev/" + fileKey;
     }
 
-    public byte[] downloadFile(String fileKey) {
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(fileKey)
-                .build();
-        try {
-            // Obtiene el objeto como bytes
-            ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(getObjectRequest);
-            return objectBytes.asByteArray();
-        } catch (S3Exception e) {
-            throw new RuntimeException("Error al descargar archivo de S3", e);
-        }
-    }
-
-    public void deleteFile(String fileKey) {
-        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(bucketName)
-                .key(fileKey)
-                .build();
-        s3Client.deleteObject(deleteObjectRequest);
-    }
-
+    /**
+     * Verifica si un objeto existe en Cloudflare R2.
+     */
     public boolean doesObjectExist(String fileKey) {
         try {
-            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(fileKey)
-                    .build();
-            HeadObjectResponse response = s3Client.headObject(headObjectRequest);
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileKey)
+                            .build()
+            );
             return true;
-        } catch (S3Exception e) {
-            if (e.statusCode() == 404) {
-                return false;
-            }
-            throw e; // Para otros errores, relanza la excepción
+        } catch (MinioException e) {
+            return false;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al verificar existencia del archivo en Cloudflare R2", e);
         }
     }
 
-    public List<String> listBuckets() {
-        return s3Client.listBuckets().buckets().stream()
-                .map(bucket -> bucket.name())
-                .collect(Collectors.toList());
+    /**
+     * Descarga un archivo de Cloudflare R2.
+     */
+    public byte[] downloadFile(String fileKey) {
+        try {
+            InputStream inputStream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileKey)
+                            .build()
+            );
+
+            return inputStream.readAllBytes();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al descargar archivo de Cloudflare R2", e);
+        }
     }
 
-
-    // Otros métodos para listar archivos, etc.
+    /**
+     * Elimina un archivo de Cloudflare R2.
+     */
+    public void deleteFile(String fileKey) {
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(fileKey)
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Error al eliminar archivo de Cloudflare R2", e);
+        }
+    }
 }

@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -98,8 +97,7 @@ public class LandingFilesServiceImpl implements LandingFilesService {
         files.forEach(file -> {
             String s3Key = file.getFileName();
             if (s3Service.doesObjectExist(s3Key)) {
-                URL presignedUrl = s3Service.generatePresignedUrl(s3Key);
-                file.setFileName(presignedUrl.toString());
+                file.setFileName(s3Service.getFileUrl(s3Key));
             } else {
                 file.setFileName("El recurso no se encuentra disponible");
             }
