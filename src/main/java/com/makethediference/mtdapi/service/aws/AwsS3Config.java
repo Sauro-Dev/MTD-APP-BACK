@@ -1,21 +1,27 @@
 package com.makethediference.mtdapi.service.aws;
 
+import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
 public class AwsS3Config {
 
-    @Value("${cloud.aws.region}")
-    private String awsRegion;
+    @Value("${CLOUDFLARE_R2_ACCESS_KEY}")
+    private String accessKey;
+
+    @Value("${CLOUDFLARE_R2_SECRET_KEY}")
+    private String secretKey;
+
+    @Value("${CLOUDFLARE_R2_ENDPOINT}")
+    private String endpoint;
 
     @Bean
-    public S3Client s3Client() {
-        return S3Client.builder()
-                .region(Region.of(awsRegion))
+    public MinioClient minioClient() {
+        return MinioClient.builder()
+                .endpoint(endpoint)
+                .credentials(accessKey, secretKey)
                 .build();
     }
 }
