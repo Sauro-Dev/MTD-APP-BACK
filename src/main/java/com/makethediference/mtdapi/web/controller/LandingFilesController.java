@@ -39,6 +39,8 @@ public class LandingFilesController {
             @RequestParam("adminId") Long adminId,
             @RequestParam("fileSector") FileSector fileSector,
             @RequestParam(value = "makerName", required = false) String makerName,
+            @RequestParam(value = "teamName", required = false) String teamName,
+            @RequestParam(value = "stand", required = false) String stand,
             @RequestParam(value = "description", required = false) String description) {
 
         if (!ALLOWED_TYPES.contains(file.getContentType())) {
@@ -47,7 +49,7 @@ public class LandingFilesController {
         }
 
         authService.authorizeUploadLandingFile();
-        LandingFiles savedFile = landingFilesService.saveLandingFile(file, adminId, fileSector, makerName, description);
+        LandingFiles savedFile = landingFilesService.saveLandingFile(file, adminId, fileSector, makerName, description, teamName, stand);
         return ResponseEntity.ok(savedFile);
     }
 
@@ -101,23 +103,7 @@ public class LandingFilesController {
             return ResponseEntity.notFound().build();
         }
         LandingFiles landingFile = landingFileOpt.get();
-        String storedValue = landingFile.getFileName();
-        String originalFileName = storedValue;
-        try {
-            URL url = new URL(storedValue);
-            // url.getPath() retorna algo como "/1740758337052_CV%20Zahir%20Aredo.pdf"
-            originalFileName = url.getPath();
-            // Quitamos la "/" inicial si existe
-            if (originalFileName.startsWith("/")) {
-                originalFileName = originalFileName.substring(1);
-            }
-        } catch (Exception e) {
-            // Si no se puede parsear como URL, buscamos el caracter "?" para quitar la query
-            int pos = storedValue.indexOf("?");
-            if (pos > 0) {
-                originalFileName = storedValue.substring(0, pos);
-            }
-        }
+        String originalFileName = getOriginalFileName(landingFile);
 
         // Verificamos que el objeto exista usando el key original.
         if (!s3Service.doesObjectExist(originalFileName)) {
@@ -140,6 +126,27 @@ public class LandingFilesController {
                 .headers(headers)
                 .contentType(MediaType.parseMediaType(contentType))
                 .body(fileContent);
+    }
+
+    private static String getOriginalFileName(LandingFiles landingFile) {
+        String storedValue = landingFile.getFileName();
+        String originalFileName = storedValue;
+        try {
+            URL url = new URL(storedValue);
+            // url.getPath() retorna algo como "/1740758337052_CV%20Zahir%20Aredo.pdf"
+            originalFileName = url.getPath();
+            // Quitamos la "/" inicial si existe
+            if (originalFileName.startsWith("/")) {
+                originalFileName = originalFileName.substring(1);
+            }
+        } catch (Exception e) {
+            // Si no se puede parsear como URL, buscamos el caracter "?" para quitar la query
+            int pos = storedValue.indexOf("?");
+            if (pos > 0) {
+                originalFileName = storedValue.substring(0, pos);
+            }
+        }
+        return originalFileName;
     }
 
     // probar conexion con S3

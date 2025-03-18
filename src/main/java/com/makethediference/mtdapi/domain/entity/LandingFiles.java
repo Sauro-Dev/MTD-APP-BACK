@@ -19,22 +19,17 @@ public class LandingFiles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idLandingFiles;
-
     private String fileTypes;
-
     private String fileName;
-
     @Enumerated(EnumType.STRING)
     private FileSector fileSector;
+    private String makerName;
+    private String teamName;
+    private String description;
+    private String stand;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id")
     @JsonIgnore
     private Admin admin;
-
-    @Column(nullable = true)
-    private String makerName;
-
-    @Column(nullable = true)
-    private String description;
 }

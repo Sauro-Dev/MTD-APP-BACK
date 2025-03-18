@@ -28,7 +28,7 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     private final S3Service s3Service;
 
     @Override
-    public LandingFiles saveLandingFile(MultipartFile file, Long adminId, FileSector fileSector, String makerName, String description) {
+    public LandingFiles saveLandingFile(MultipartFile file, Long adminId, FileSector fileSector, String makerName, String description, String teamName, String stand) {
 
         if (!ALLOWED_TYPES.contains(file.getContentType())) {
             throw new IllegalArgumentException("Tipo de archivo no permitido. Solo se aceptan PNG, JPG, WEBP y PDF.");
@@ -53,6 +53,13 @@ public class LandingFilesServiceImpl implements LandingFilesService {
             }
         }
 
+        if (fileSector == FileSector.TEAM) {
+            long teamCount = landingFilesRepository.countByFileSector(FileSector.TEAM);
+            if (teamCount >= 10) {
+                throw new IllegalArgumentException("No se pueden registrar más de 10 miembros de equipo.");
+            }
+        }
+
         User user = userRepository.findById(adminId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
         if (!(user instanceof Admin)) {
@@ -70,6 +77,11 @@ public class LandingFilesServiceImpl implements LandingFilesService {
         if (fileSector == FileSector.FEATURED_MAKER) {
             landingFile.setMakerName(makerName);
             landingFile.setDescription(description);
+        }
+
+        if (fileSector == FileSector.TEAM) {
+            landingFile.setTeamName(teamName);
+            landingFile.setStand(stand);
         }
 
         return landingFilesRepository.save(landingFile);
