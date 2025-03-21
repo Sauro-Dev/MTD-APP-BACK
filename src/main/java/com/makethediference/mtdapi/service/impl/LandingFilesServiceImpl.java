@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -120,8 +121,26 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     @Override
     public boolean disableLandingFile(Long id) {
         return landingFilesRepository.findById(id).map(existingFile -> {
-            existingFile.setFileTypes("DISABLED");
-            landingFilesRepository.save(existingFile);
+            String fileKey = existingFile.getFileName();
+
+            if (fileKey.startsWith("http")) {
+                try {
+                    URL url = new URL(fileKey);
+                    fileKey = url.getPath();
+                    if (fileKey.startsWith("/")) {
+                        fileKey = fileKey.substring(1);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error al parsear URL: " + e.getMessage());
+                }
+            }
+
+            if (r2Service.doesObjectExist(fileKey)) {
+                r2Service.deleteFile(fileKey);
+            }
+
+            landingFilesRepository.delete(existingFile);
+
             return true;
         }).orElse(false);
     }

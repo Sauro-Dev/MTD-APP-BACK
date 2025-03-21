@@ -87,9 +87,7 @@
 
         @PatchMapping("/disable/{id}")
         @Transactional
-        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Void> disableLandingFile(@PathVariable Long id) {
-            authService.authorizeDisableLandingFile();
             boolean disabled = landingFilesService.disableLandingFile(id);
             return disabled ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
         }
