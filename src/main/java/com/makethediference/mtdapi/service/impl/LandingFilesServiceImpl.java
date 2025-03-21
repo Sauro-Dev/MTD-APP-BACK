@@ -35,11 +35,9 @@ public class LandingFilesServiceImpl implements LandingFilesService {
         }
 
         if (fileSector == FileSector.HISTORY) {
-            // Solo se permiten imágenes para HISTORY
             if (!Set.of("image/png", "image/jpeg", "image/jpg", "image/webp").contains(file.getContentType())) {
                 throw new IllegalArgumentException("Solo se permiten imágenes para el sector HISTORY.");
             }
-            // Verificar que no se haya cargado ya una imagen para HISTORY
             long historyCount = landingFilesRepository.countByFileSector(FileSector.HISTORY);
             if (historyCount >= 1) {
                 throw new IllegalArgumentException("Ya existe una imagen para el sector HISTORY.");
@@ -80,14 +78,12 @@ public class LandingFilesServiceImpl implements LandingFilesService {
         }
 
         if (fileSector == FileSector.TEAM) {
-            landingFile.setTeamName(teamName);
-            landingFile.setStand(stand);
+            landingFile.setMakerName(makerName); // Usar makerName como nombre del equipo
+            landingFile.setDescription(description); // Usar description como cargo
         }
 
         return landingFilesRepository.save(landingFile);
     }
-
-
 
     @Override
     public Optional<LandingFiles> updateLandingFile(Long id, MultipartFile file) {
@@ -140,7 +136,6 @@ public class LandingFilesServiceImpl implements LandingFilesService {
             }
 
             landingFilesRepository.delete(existingFile);
-
             return true;
         }).orElse(false);
     }
