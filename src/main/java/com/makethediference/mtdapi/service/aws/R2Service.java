@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 
 @Service
-public class S3Service {
+public class R2Service {
 
     private final MinioClient minioClient;
 
@@ -19,7 +19,7 @@ public class S3Service {
     @Value("${CLOUDFLARE_R2_ENDPOINT}")
     private String endpoint;
 
-    public S3Service(MinioClient minioClient) {
+    public R2Service(MinioClient minioClient) {
         this.minioClient = minioClient;
     }
 

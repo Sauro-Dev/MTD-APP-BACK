@@ -7,7 +7,7 @@ import com.makethediference.mtdapi.domain.entity.User;
 import com.makethediference.mtdapi.infra.repository.LandingFilesRepository;
 import com.makethediference.mtdapi.infra.repository.UserRepository;
 import com.makethediference.mtdapi.service.LandingFilesService;
-import com.makethediference.mtdapi.service.aws.S3Service;
+import com.makethediference.mtdapi.service.aws.R2Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +24,7 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     private final UserRepository userRepository;
 
     private static final Set<String> ALLOWED_TYPES = Set.of("image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf");
-    private final S3Service s3Service;
+    private final R2Service r2Service;
 
     @Override
     public LandingFiles saveLandingFile(MultipartFile file, Long adminId, FileSector fileSector, String makerName, String description, String teamName, String stand) {
@@ -65,7 +65,7 @@ public class LandingFilesServiceImpl implements LandingFilesService {
             throw new IllegalArgumentException("El usuario debe ser un administrador para subir archivos.");
         }
 
-        String fileKey = s3Service.uploadFile(file);
+        String fileKey = r2Service.uploadFile(file);
 
         LandingFiles landingFile = new LandingFiles();
         landingFile.setFileTypes(file.getContentType());
@@ -91,7 +91,7 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     @Override
     public Optional<LandingFiles> updateLandingFile(Long id, MultipartFile file) {
         return landingFilesRepository.findById(id).map(existingFile -> {
-            String newFileKey = s3Service.uploadFile(file);
+            String newFileKey = r2Service.uploadFile(file);
             existingFile.setFileTypes(file.getContentType());
             existingFile.setFileName(newFileKey);
             return landingFilesRepository.save(existingFile);
@@ -108,8 +108,8 @@ public class LandingFilesServiceImpl implements LandingFilesService {
         List<LandingFiles> files = landingFilesRepository.findAll();
         files.forEach(file -> {
             String s3Key = file.getFileName();
-            if (s3Service.doesObjectExist(s3Key)) {
-                file.setFileName(s3Service.getFileUrl(s3Key));
+            if (r2Service.doesObjectExist(s3Key)) {
+                file.setFileName(r2Service.getFileUrl(s3Key));
             } else {
                 file.setFileName("El recurso no se encuentra disponible");
             }

@@ -4,7 +4,7 @@
     import com.makethediference.mtdapi.domain.entity.LandingFiles;
     import com.makethediference.mtdapi.service.LandingFilesService;
     import com.makethediference.mtdapi.service.auth.AuthService;
-    import com.makethediference.mtdapi.service.aws.S3Service;
+    import com.makethediference.mtdapi.service.aws.R2Service;
     import lombok.AllArgsConstructor;
     import org.springframework.http.HttpHeaders;
     import org.springframework.http.HttpStatus;
@@ -29,7 +29,7 @@
         private final AuthService authService;
         private final LandingFilesService landingFilesService;
         private static final Set<String> ALLOWED_TYPES = Set.of("image/png", "image/jpeg", "image/webp", "application/pdf");
-        private final S3Service s3Service;
+        private final R2Service r2Service;
 
         @PostMapping("/register")
         @Transactional
@@ -62,12 +62,12 @@
             LandingFiles landingFile = landingFileOpt.get();
             String fileKey = landingFile.getFileName();
 
-            if (!s3Service.doesObjectExist(fileKey)) {
+            if (!r2Service.doesObjectExist(fileKey)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("El recurso no se encuentra disponible");
             }
 
-            return ResponseEntity.ok(s3Service.getFileUrl(fileKey));
+            return ResponseEntity.ok(r2Service.getFileUrl(fileKey));
         }
 
         @GetMapping("/all")
@@ -120,13 +120,13 @@
             }
 
             // Verificamos que el objeto exista usando el key original.
-            if (!s3Service.doesObjectExist(originalFileName)) {
+            if (!r2Service.doesObjectExist(originalFileName)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("El recurso no se encuentra disponible");
             }
 
             // Descargamos el archivo desde S3 usando el key original.
-            byte[] fileContent = s3Service.downloadFile(originalFileName);
+            byte[] fileContent = r2Service.downloadFile(originalFileName);
             if (fileContent == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("Error al descargar el archivo desde S3");

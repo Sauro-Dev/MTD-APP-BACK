@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class AwsS3Config {
+public class R2Config {
 
     @Value("${CLOUDFLARE_R2_ACCESS_KEY}")
     private String accessKey;
