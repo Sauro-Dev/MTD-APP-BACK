@@ -6,6 +6,7 @@
     import com.makethediference.mtdapi.service.auth.AuthService;
     import com.makethediference.mtdapi.service.aws.R2Service;
     import lombok.AllArgsConstructor;
+    import org.jetbrains.annotations.Nullable;
     import org.springframework.http.HttpHeaders;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.MediaType;
@@ -87,9 +88,13 @@
 
         @PatchMapping("/disable/{id}")
         @Transactional
-        public ResponseEntity<Void> disableLandingFile(@PathVariable Long id) {
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<String> disableLandingFile(@PathVariable Long id) {
+            this.authService.authorizeDisableLandingFile();
             boolean disabled = landingFilesService.disableLandingFile(id);
-            return disabled ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+            return disabled
+                    ? ResponseEntity.ok("Se ha deshabilitado la imagen correctamente")
+                    : ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se ha encontrado la imagen a deshabilitar");
         }
 
         @GetMapping("/download/{id}")
@@ -99,23 +104,7 @@
                 return ResponseEntity.notFound().build();
             }
             LandingFiles landingFile = landingFileOpt.get();
-            String storedValue = landingFile.getFileName();
-            String originalFileName = storedValue;
-            try {
-                URL url = new URL(storedValue);
-                // url.getPath() retorna algo como "/1740758337052_CV%20Zahir%20Aredo.pdf"
-                originalFileName = url.getPath();
-                // Quitamos la "/" inicial si existe
-                if (originalFileName.startsWith("/")) {
-                    originalFileName = originalFileName.substring(1);
-                }
-            } catch (Exception e) {
-                // Si no se puede parsear como URL, buscamos el caracter "?" para quitar la query
-                int pos = storedValue.indexOf("?");
-                if (pos > 0) {
-                    originalFileName = storedValue.substring(0, pos);
-                }
-            }
+            String originalFileName = getOriginalFileName(landingFile);
 
             // Verificamos que el objeto exista usando el key original.
             if (!r2Service.doesObjectExist(originalFileName)) {
@@ -138,5 +127,27 @@
                     .headers(headers)
                     .contentType(MediaType.parseMediaType(contentType))
                     .body(fileContent);
+        }
+
+        @Nullable
+        private static String getOriginalFileName(LandingFiles landingFile) {
+            String storedValue = landingFile.getFileName();
+            String originalFileName = storedValue;
+            try {
+                URL url = new URL(storedValue);
+                // url.getPath() retorna algo como "/1740758337052_CV%20Zahir%20Aredo.pdf"
+                originalFileName = url.getPath();
+                // Quitamos la "/" inicial si existe
+                if (originalFileName.startsWith("/")) {
+                    originalFileName = originalFileName.substring(1);
+                }
+            } catch (Exception e) {
+                // Si no se puede parsear como URL, buscamos el caracter "?" para quitar la query
+                int pos = storedValue.indexOf("?");
+                if (pos > 0) {
+                    originalFileName = storedValue.substring(0, pos);
+                }
+            }
+            return originalFileName;
         }
     }
