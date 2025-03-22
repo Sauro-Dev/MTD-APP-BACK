@@ -78,8 +78,8 @@ public class LandingFilesServiceImpl implements LandingFilesService {
         }
 
         if (fileSector == FileSector.TEAM) {
-            landingFile.setMakerName(makerName); // Usar makerName como nombre del equipo
-            landingFile.setDescription(description); // Usar description como cargo
+            landingFile.setMakerName(makerName);
+            landingFile.setDescription(description);
         }
 
         return landingFilesRepository.save(landingFile);
