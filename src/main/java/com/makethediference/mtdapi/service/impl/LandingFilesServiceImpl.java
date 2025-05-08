@@ -7,7 +7,7 @@ import com.makethediference.mtdapi.domain.entity.User;
 import com.makethediference.mtdapi.infra.repository.LandingFilesRepository;
 import com.makethediference.mtdapi.infra.repository.UserRepository;
 import com.makethediference.mtdapi.service.LandingFilesService;
-import com.makethediference.mtdapi.service.aws.R2Service;
+import com.makethediference.mtdapi.service.cloudflare.r2.R2Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

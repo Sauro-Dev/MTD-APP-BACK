@@ -1,4 +1,4 @@
-package com.makethediference.mtdapi.service.aws;
+package com.makethediference.mtdapi.service.cloudflare.r2;
 
 import io.minio.*;
 import io.minio.errors.MinioException;

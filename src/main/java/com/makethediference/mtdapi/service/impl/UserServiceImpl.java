@@ -10,6 +10,7 @@ import com.makethediference.mtdapi.infra.security.JwtService;
 import com.makethediference.mtdapi.infra.security.LoginRequest;
 import com.makethediference.mtdapi.infra.security.TokenResponse;
 import com.makethediference.mtdapi.service.UserService;
+import com.makethediference.mtdapi.service.cloudflare.d1.D1Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
@@ -33,6 +34,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserNameGeneratorServiceImpl userNameGeneratorServiceImpl;
+    private final D1Service d1Service;
 
     @Override
     public TokenResponse login(LoginRequest request) {
@@ -93,6 +95,10 @@ public class UserServiceImpl implements UserService {
         user.setFirstLogin(true);
         user.setEnabled(true);
         userRepository.save(user);
+
+        // Insertar usuario en Cloudflare D1
+        String sql = "INSERT INTO users (username, email, phoneNumber, dni) VALUES (?, ?, ?, ?)";
+        d1Service.executeQuery(sql, List.of(user.getUsername(), user.getEmail(), user.getPhoneNumber(), user.getDni()));
 
         String token = jwtService.getToken(user, user);
         return TokenResponse.builder()

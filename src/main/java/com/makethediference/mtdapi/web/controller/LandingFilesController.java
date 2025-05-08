@@ -4,7 +4,7 @@
     import com.makethediference.mtdapi.domain.entity.LandingFiles;
     import com.makethediference.mtdapi.service.LandingFilesService;
     import com.makethediference.mtdapi.service.auth.AuthService;
-    import com.makethediference.mtdapi.service.aws.R2Service;
+    import com.makethediference.mtdapi.service.cloudflare.r2.R2Service;
     import lombok.AllArgsConstructor;
     import org.jetbrains.annotations.Nullable;
     import org.springframework.http.HttpHeaders;
