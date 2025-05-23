@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,13 +22,12 @@ public class LandingFilesServiceImpl implements LandingFilesService {
 
     private final LandingFilesRepository landingFilesRepository;
     private final UserRepository userRepository;
+    private final R2Service r2Service;
 
     private static final Set<String> ALLOWED_TYPES = Set.of("image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf");
-    private final R2Service r2Service;
 
     @Override
     public LandingFiles saveLandingFile(MultipartFile file, Long adminId, FileSector fileSector, String makerName, String description, String teamName, String stand) {
-
         if (!ALLOWED_TYPES.contains(file.getContentType())) {
             throw new IllegalArgumentException("Tipo de archivo no permitido. Solo se aceptan PNG, JPG, WEBP y PDF.");
         }
@@ -86,16 +84,6 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     }
 
     @Override
-    public Optional<LandingFiles> updateLandingFile(Long id, MultipartFile file) {
-        return landingFilesRepository.findById(id).map(existingFile -> {
-            String newFileKey = r2Service.uploadFile(file);
-            existingFile.setFileTypes(file.getContentType());
-            existingFile.setFileName(newFileKey);
-            return landingFilesRepository.save(existingFile);
-        });
-    }
-
-    @Override
     public Optional<LandingFiles> getLandingFileById(Long id) {
         return landingFilesRepository.findById(id);
     }
@@ -115,13 +103,23 @@ public class LandingFilesServiceImpl implements LandingFilesService {
     }
 
     @Override
+    public Optional<LandingFiles> updateLandingFile(Long id, MultipartFile file) {
+        return landingFilesRepository.findById(id).map(existingFile -> {
+            String newFileKey = r2Service.uploadFile(file);
+            existingFile.setFileTypes(file.getContentType());
+            existingFile.setFileName(newFileKey);
+            return landingFilesRepository.save(existingFile);
+        });
+    }
+
+    @Override
     public boolean disableLandingFile(Long id) {
         return landingFilesRepository.findById(id).map(existingFile -> {
             String fileKey = existingFile.getFileName();
 
             if (fileKey.startsWith("http")) {
                 try {
-                    URL url = new URL(fileKey);
+                    java.net.URL url = new java.net.URL(fileKey);
                     fileKey = url.getPath();
                     if (fileKey.startsWith("/")) {
                         fileKey = fileKey.substring(1);

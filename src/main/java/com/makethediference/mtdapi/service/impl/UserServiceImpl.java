@@ -70,7 +70,6 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-
     @Override
     public TokenResponse addUser(RegisterUser data) {
         if (userRepository.existsByPhoneNumber(data.phoneNumber())) {
@@ -182,5 +181,17 @@ public class UserServiceImpl implements UserService {
         UpdateProfile updatedDto = userMapper.toUpdateProfile(user);
 
         return new UpdateProfileResponse(updatedDto, newToken);
+    }
+
+    @Override
+    public TokenResponse getToken(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + email));
+
+        String token = jwtService.getToken(user, user);
+
+        return TokenResponse.builder()
+                .token(token)
+                .build();
     }
 }

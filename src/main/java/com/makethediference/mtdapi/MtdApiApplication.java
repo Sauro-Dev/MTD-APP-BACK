@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -57,6 +58,7 @@ public class MtdApiApplication {
             }
         };
     }
+
     @Bean
     public CommandLineRunner initD1Database(D1Service d1Service, PasswordEncoder passwordEncoder) {
         return args -> {
@@ -82,33 +84,40 @@ public class MtdApiApplication {
                     "enabled BOOLEAN, " +
                     "firstLogin BOOLEAN" +
                     ")";
+            try {
+                d1Service.executeQuery(createTableSQL, List.of());
+            } catch (HttpClientErrorException e) {
+                System.err.println("Error al crear la tabla: " + e.getMessage());
+            }
 
-            // Ejecutar el comando SQL para crear la tabla
-            d1Service.executeQuery(createTableSQL, List.of());
-
-            // Insertar el usuario admin si no existe
+            // Verificar si el usuario admin ya existe
             boolean adminExists = !d1Service.queryForList("SELECT 1 FROM users WHERE email = ?", Boolean.class, List.of("admin@admin.com")).isEmpty();
             if (!adminExists) {
                 String insertAdminSQL = "INSERT INTO users (username, password, role, name, paternalSurname, maternalSurname, dni, email, phoneNumber, codeNumber, country, region, motivation, estimatedHours, enabled, firstLogin) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                d1Service.executeQuery(insertAdminSQL, List.of(
-                        "admin",
-                        passwordEncoder.encode("admin123"),
-                        "ADMIN",
-                        "Luis",
-                        "Mostacero",
-                        "Cieza",
-                        "00000000",
-                        "admin@admin.com",
-                        "123456789",
-                        "+51",
-                        "Peru",
-                        "La Libertad",
-                        "Luisda Luisda Luisda Luisda Luisda Luisda",
-                        "PLUS_TEN",
-                        true,
-                        true
-                ));
+                try {
+                    d1Service.executeQuery(insertAdminSQL, List.of(
+                            "admin",
+                            passwordEncoder.encode("admin123"),
+                            "ADMIN",
+                            "Luis",
+                            "Mostacero",
+                            "Cieza",
+                            "00000000",
+                            "admin@admin.com",
+                            "123456789",
+                            "+51",
+                            "Peru",
+                            "La Libertad",
+                            "Luisda Luisda Luisda Luisda Luisda Luisda",
+                            "PLUS_TEN",
+                            true,
+                            true
+                    ));
+                } catch (HttpClientErrorException e) {
+                }
+            } else {
+                System.out.println("El usuario admin ya existe, no se insertará nuevamente.");
             }
         };
     }

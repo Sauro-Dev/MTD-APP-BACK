@@ -13,5 +13,5 @@ public interface UserService {
     ListUser getUserById(Long id);
     MyProfile getMyProfile(String email);
     UpdateProfileResponse updateMyProfile(String emailActual, UpdateProfile datosNuevos);
-
+    TokenResponse getToken(String email);
 }

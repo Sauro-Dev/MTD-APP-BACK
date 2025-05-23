@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class D1Config {
 
-    @Value("${CLOUDFLARE_D1_ACCOUNT_ID}")
+    @Value("${CLOUDFLARE_ACCOUNT_ID}")
     private String accountId;
 
     @Value("${CLOUDFLARE_D1_DATABASE_ID}")

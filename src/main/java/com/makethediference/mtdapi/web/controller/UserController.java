@@ -50,6 +50,11 @@ public class UserController {
         return ResponseEntity.ok(isValid);
     }
 
+    @GetMapping("/get-token")
+    public ResponseEntity<TokenResponse> getToken(@RequestParam String email) {
+        return ResponseEntity.ok(userService.getToken(email));
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/register")
     @Transactional
