@@ -84,7 +84,7 @@ pipeline {
 
     post {
         always {
-            node('master') {  // Asegúrate de especificar una etiqueta válida para el nodo
+            node('main') {
                 cleanWs()
             }
         }
