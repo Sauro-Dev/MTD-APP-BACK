@@ -50,41 +50,41 @@ pipeline {
         }
 
         stage('Deploy') {
-            when {
-                anyOf {
-                    branch 'develop'
-                    branch 'main'
+                    when {
+                        anyOf {
+                            branch 'develop'
+                            branch 'main'
+                        }
+                    }
+
+                    steps {
+                        script {
+                            // Configura el entorno basado en la rama
+                            def envFile = "${env.DEPLOY_ENV}.env"
+
+                            bat """
+                                set CLOUDFLARE_R2_ACCESS_KEY=${env.CLOUDFLARE_R2_ACCESS_KEY}
+                                set CLOUDFLARE_R2_SECRET_KEY=${env.CLOUDFLARE_R2_SECRET_KEY}
+                                set CLOUDFLARE_R2_BUCKET_NAME=${env.CLOUDFLARE_R2_BUCKET_NAME}
+                                set CLOUDFLARE_R2_ENDPOINT=${env.CLOUDFLARE_R2_ENDPOINT}
+
+                                # Usa el archivo docker-compose específico del entorno si existe
+                                if exist "docker-compose.${env.DEPLOY_ENV}.yml" (
+                                    docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml down
+                                    docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml up -d
+                                ) else (
+                                    docker-compose down
+                                    docker-compose up -d
+                                )
+                            """
+                        }
+                    }
                 }
             }
-
-            steps {
-                script {
-                    // Configura el entorno basado en la rama
-                    def envFile = "${env.DEPLOY_ENV}.env"
-
-                    bat """
-                        set CLOUDFLARE_R2_ACCESS_KEY=${env.CLOUDFLARE_R2_ACCESS_KEY}
-                        set CLOUDFLARE_R2_SECRET_KEY=${env.CLOUDFLARE_R2_SECRET_KEY}
-                        set CLOUDFLARE_R2_BUCKET_NAME=${env.CLOUDFLARE_R2_BUCKET_NAME}
-                        set CLOUDFLARE_R2_ENDPOINT=${env.CLOUDFLARE_R2_ENDPOINT}
-
-                        # Usa el archivo docker-compose específico del entorno si existe
-                        if exist "docker-compose.${env.DEPLOY_ENV}.yml" (
-                            docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml down
-                            docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml up -d
-                        ) else (
-                            docker-compose down
-                            docker-compose up -d
-                        )
-                    """
-                }
-            }
-        }
-    }
 
     post {
         always {
-            node {  // Sin etiqueta específica
+            node('master') {
                 cleanWs()
             }
         }
