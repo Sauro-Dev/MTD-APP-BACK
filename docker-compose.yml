@@ -18,7 +18,7 @@ services:
       - mtd_network
   
   app_mtd:
-    build: .
+    image: kmotinxd/mtd-app:latest
     ports:
       - "0:8080"
     environment:
