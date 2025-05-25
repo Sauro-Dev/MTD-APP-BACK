@@ -14,9 +14,11 @@ pipeline {
         VERSION = getVersionFromBranch("${env.GIT_BRANCH}")
         DOCKER_IMAGE_TAG = "${APP_NAME}:${VERSION}-${BUILD_NUMBER}"
 
-        // Credenciales
-        CLOUDFLARE_CREDS = credentials('cloudflare-r2-credentials')
-        MAIL_CREDS = credentials('spring-mail-credentials')
+        // Variables de entorno para Cloudflare R2
+        CLOUDFLARE_R2_ACCESS_KEY = env.CLOUDFLARE_R2_ACCESS_KEY
+        CLOUDFLARE_R2_SECRET_KEY = env.CLOUDFLARE_R2_SECRET_KEY
+        CLOUDFLARE_R2_BUCKET_NAME = env.CLOUDFLARE_R2_BUCKET_NAME
+        CLOUDFLARE_R2_ENDPOINT = env.CLOUDFLARE_R2_ENDPOINT
     }
 
     stages {
@@ -67,13 +69,6 @@ pipeline {
                     def envFile = "${env.DEPLOY_ENV}.env"
 
                     sh """
-                        export CLOUDFLARE_R2_ACCESS_KEY=\${CLOUDFLARE_CREDS_USR}
-                        export CLOUDFLARE_R2_SECRET_KEY=\${CLOUDFLARE_CREDS_PSW}
-                        export CLOUDFLARE_R2_ENDPOINT=https://35a65665075e7977418ec554566af539.r2.cloudflarestorage.com
-                        export CLOUDFLARE_R2_BUCKET_NAME=mtd-files-${env.DEPLOY_ENV}
-                        export SPRING_MAIL_USERNAME=\${MAIL_CREDS_USR}
-                        export SPRING_MAIL_PASSWORD=\${MAIL_CREDS_PSW}
-
                         # Usa el archivo docker-compose específico del entorno si existe
                         if [ -f "docker-compose.${env.DEPLOY_ENV}.yml" ]; then
                             docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml down
@@ -90,7 +85,9 @@ pipeline {
 
     post {
         always {
-            cleanWs()
+            node {
+                cleanWs()
+            }
         }
         success {
             echo "Pipeline completed successfully for ${env.GIT_BRANCH} branch!"
