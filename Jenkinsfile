@@ -13,12 +13,6 @@ pipeline {
         APP_NAME = 'mtd-api'
         VERSION = getVersionFromBranch("${env.GIT_BRANCH}")
         DOCKER_IMAGE_TAG = "${APP_NAME}:${VERSION}-${BUILD_NUMBER}"
-
-        // Variables de entorno para Cloudflare R2
-        CLOUDFLARE_R2_ACCESS_KEY = env.CLOUDFLARE_R2_ACCESS_KEY
-        CLOUDFLARE_R2_SECRET_KEY = env.CLOUDFLARE_R2_SECRET_KEY
-        CLOUDFLARE_R2_BUCKET_NAME = env.CLOUDFLARE_R2_BUCKET_NAME
-        CLOUDFLARE_R2_ENDPOINT = env.CLOUDFLARE_R2_ENDPOINT
     }
 
     stages {
@@ -69,6 +63,11 @@ pipeline {
                     def envFile = "${env.DEPLOY_ENV}.env"
 
                     sh """
+                        export CLOUDFLARE_R2_ACCESS_KEY=${env.CLOUDFLARE_R2_ACCESS_KEY}
+                        export CLOUDFLARE_R2_SECRET_KEY=${env.CLOUDFLARE_R2_SECRET_KEY}
+                        export CLOUDFLARE_R2_BUCKET_NAME=${env.CLOUDFLARE_R2_BUCKET_NAME}
+                        export CLOUDFLARE_R2_ENDPOINT=${env.CLOUDFLARE_R2_ENDPOINT}
+
                         # Usa el archivo docker-compose específico del entorno si existe
                         if [ -f "docker-compose.${env.DEPLOY_ENV}.yml" ]; then
                             docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml down
@@ -85,7 +84,7 @@ pipeline {
 
     post {
         always {
-            node {
+            node('master') {  // Asegúrate de especificar una etiqueta válida para el nodo
                 cleanWs()
             }
         }
