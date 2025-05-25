@@ -1,25 +1,24 @@
 pipeline {
     agent any
-    
+
     tools {
         maven 'Maven'
         jdk 'JDK17'
     }
-    
+
     environment {
         GIT_BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'develop'}"
-        DEPLOY_ENV = "${env.GIT_BRANCH == 'main' ? 'production' : 
-                       env.GIT_BRANCH == 'develop' ? 'staging' : 'testing'}"
-        
+        DEPLOY_ENV = "${env.GIT_BRANCH == 'main' ? 'production' : env.GIT_BRANCH == 'develop' ? 'staging' : 'testing'}"
+
         APP_NAME = 'mtd-api'
         VERSION = getVersionFromBranch("${env.GIT_BRANCH}")
         DOCKER_IMAGE_TAG = "${APP_NAME}:${VERSION}-${BUILD_NUMBER}"
-        
+
         // Credenciales
         CLOUDFLARE_CREDS = credentials('cloudflare-r2-credentials')
         MAIL_CREDS = credentials('spring-mail-credentials')
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -28,11 +27,11 @@ pipeline {
                 echo "Deploying to ${env.DEPLOY_ENV} environment from branch ${env.GIT_BRANCH}"
             }
         }
-        
+
         stage('Build and Test') {
             steps {
                 sh 'mvn clean package'
-                
+
                 // Verificar que el JAR fue creado correctamente
                 sh 'ls -la target/*.jar'
             }
@@ -43,30 +42,30 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Build Docker Image') {
             steps {
                 // Asegurarse de que el archivo JAR exista antes de construir la imagen
                 sh 'ls -la target/*.jar || (echo "ERROR: JAR file not found"; exit 1)'
-                
+
                 sh "docker build -t ${DOCKER_IMAGE_TAG} ."
                 sh "docker tag ${DOCKER_IMAGE_TAG} ${APP_NAME}:latest"
             }
         }
-        
+
         stage('Deploy') {
             when {
                 anyOf {
-                    branch 'develop';
+                    branch 'develop'
                     branch 'main'
                 }
             }
-            
+
             steps {
                 script {
                     // Configura el entorno basado en la rama
                     def envFile = "${env.DEPLOY_ENV}.env"
-                    
+
                     sh """
                         export CLOUDFLARE_R2_ACCESS_KEY=\${CLOUDFLARE_CREDS_USR}
                         export CLOUDFLARE_R2_SECRET_KEY=\${CLOUDFLARE_CREDS_PSW}
@@ -74,7 +73,7 @@ pipeline {
                         export CLOUDFLARE_R2_BUCKET_NAME=mtd-files-${env.DEPLOY_ENV}
                         export SPRING_MAIL_USERNAME=\${MAIL_CREDS_USR}
                         export SPRING_MAIL_PASSWORD=\${MAIL_CREDS_PSW}
-                        
+
                         # Usa el archivo docker-compose específico del entorno si existe
                         if [ -f "docker-compose.${env.DEPLOY_ENV}.yml" ]; then
                             docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml down
@@ -88,7 +87,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             cleanWs()
