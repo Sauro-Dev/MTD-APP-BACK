@@ -1,14 +1,21 @@
 package com.makethediference.mtdapi;
 
 import com.makethediference.mtdapi.domain.entity.Admin;
+import com.makethediference.mtdapi.domain.entity.EstimatedHours;
 import com.makethediference.mtdapi.domain.entity.Role;
 import com.makethediference.mtdapi.infra.repository.UserRepository;
+import com.makethediference.mtdapi.service.cloudflare.d1.D1Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.HttpClientErrorException;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -20,25 +27,97 @@ public class MtdApiApplication {
     }
 
     @Bean
-    public CommandLineRunner initDatabase(UserRepository userRepository) {
+    public CommandLineRunner initDatabase(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            if (userRepository.findByUsername("admin").isEmpty()) {
-                Admin defaultAdmin = new Admin();
-                defaultAdmin.setUsername("admin");
-                defaultAdmin.setPassword("admin123");
-                defaultAdmin.setRole(Role.ADMIN);
-                defaultAdmin.setName("Admin");
-                defaultAdmin.setSurname("Mostacero Cieza");
-                defaultAdmin.setDni("00000000");
-                defaultAdmin.setEmail("admin@admin.com");
-                defaultAdmin.setAge(20);
-                defaultAdmin.setPhoneNumber("0123456789");
-                defaultAdmin.setCountry("Peru");
-                defaultAdmin.setRegion("La Libertad");
-                defaultAdmin.setMotivation("Luisda Luisda Luisda Luisda Luisda Luisda");
-                defaultAdmin.setEnabled(true);
+            boolean existsByEmail = userRepository.findByEmail("admin@admin.com").isPresent();
+            boolean existsByUsername = userRepository.findByUsername("admin").isPresent();
+            boolean existsByPhoneNumber = userRepository.findByPhoneNumber("123456789").isPresent();
+
+            if (!existsByEmail && !existsByUsername && !existsByPhoneNumber) {
+                Admin defaultAdmin = Admin.builder()
+                        .username("admin")
+                        .password(passwordEncoder.encode("admin123"))
+                        .role(Role.ADMIN)
+                        .name("Luis")
+                        .paternalSurname("Mostacero")
+                        .maternalSurname("Cieza")
+                        .birthdate(LocalDate.of(1980, 1, 1))
+                        .dni("00000000")
+                        .email("admin@admin.com")
+                        .phoneNumber("123456789")
+                        .codeNumber("+51")
+                        .country("Peru")
+                        .region("La Libertad")
+                        .motivation("Luisda Luisda Luisda Luisda Luisda Luisda")
+                        .estimatedHours(EstimatedHours.PLUS_TEN)
+                        .enabled(true)
+                        .firstLogin(true)
+                        .build();
 
                 userRepository.save(defaultAdmin);
+            }
+        };
+    }
+
+    @Bean
+    public CommandLineRunner initD1Database(D1Service d1Service, PasswordEncoder passwordEncoder) {
+        return args -> {
+            // SQL para crear la tabla de usuarios si no existe
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS users (" +
+                    "userId INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "username TEXT UNIQUE, " +
+                    "password TEXT, " +
+                    "role TEXT, " +
+                    "name TEXT, " +
+                    "paternalSurname TEXT, " +
+                    "maternalSurname TEXT, " +
+                    "dni TEXT UNIQUE, " +
+                    "email TEXT UNIQUE, " +
+                    "age INTEGER, " +
+                    "birthdate TEXT, " +
+                    "phoneNumber TEXT UNIQUE, " +
+                    "codeNumber TEXT, " +
+                    "country TEXT, " +
+                    "region TEXT, " +
+                    "motivation TEXT, " +
+                    "estimatedHours TEXT, " +
+                    "enabled BOOLEAN, " +
+                    "firstLogin BOOLEAN" +
+                    ")";
+            try {
+                d1Service.executeQuery(createTableSQL, List.of());
+            } catch (HttpClientErrorException e) {
+                System.err.println("Error al crear la tabla: " + e.getMessage());
+            }
+
+            // Verificar si el usuario admin ya existe
+            boolean adminExists = !d1Service.queryForList("SELECT 1 FROM users WHERE email = ?", Boolean.class, List.of("admin@admin.com")).isEmpty();
+            if (!adminExists) {
+                String insertAdminSQL = "INSERT INTO users (username, password, role, name, paternalSurname, maternalSurname, dni, email, phoneNumber, codeNumber, country, region, motivation, estimatedHours, enabled, firstLogin) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                try {
+                    d1Service.executeQuery(insertAdminSQL, List.of(
+                            "admin",
+                            passwordEncoder.encode("admin123"),
+                            "ADMIN",
+                            "Luis",
+                            "Mostacero",
+                            "Cieza",
+                            "00000000",
+                            "admin@admin.com",
+                            "123456789",
+                            "+51",
+                            "Peru",
+                            "La Libertad",
+                            "Luisda Luisda Luisda Luisda Luisda Luisda",
+                            "PLUS_TEN",
+                            true,
+                            true
+                    ));
+                } catch (HttpClientErrorException e) {
+                }
+            } else {
+                System.out.println("El usuario admin ya existe, no se insertará nuevamente.");
             }
         };
     }
