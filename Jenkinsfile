@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'ec2-agent'
+    }
 
     tools {
         maven 'Maven'
@@ -19,17 +21,16 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                bat 'git branch --show-current'
+                sh 'git branch --show-current'
                 echo "Deploying to ${env.DEPLOY_ENV} environment from branch ${env.GIT_BRANCH}"
             }
         }
 
         stage('Build and Test') {
             steps {
-                bat 'mvn clean package'
+                sh 'mvn clean package'
 
-                // Verificar que el JAR fue creado correctamente
-                bat 'dir target\\*.jar'
+                sh 'ls target/*.jar'
             }
             post {
                 success {
@@ -41,46 +42,44 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                // Asegurarse de que el archivo JAR exista antes de construir la imagen
-                bat 'dir target\\*.jar || (echo "ERROR: JAR file not found" && exit 1)'
+                sh 'ls target/*.jar || (echo "ERROR: JAR file not found" && exit 1)'
 
-                bat "docker build -t ${DOCKER_IMAGE_TAG} ."
-                bat "docker tag ${DOCKER_IMAGE_TAG} ${APP_NAME}:latest"
+                sh "docker build -t ${DOCKER_IMAGE_TAG} ."
+                sh "docker tag ${DOCKER_IMAGE_TAG} ${APP_NAME}:latest"
             }
         }
 
         stage('Deploy') {
-                    when {
-                        anyOf {
-                            branch 'develop'
-                            branch 'main'
-                        }
-                    }
-
-                    steps {
-                        script {
-                            // Configura el entorno basado en la rama
-                            def envFile = "${env.DEPLOY_ENV}.env"
-
-                            bat """
-                                set CLOUDFLARE_R2_ACCESS_KEY=${env.CLOUDFLARE_R2_ACCESS_KEY}
-                                set CLOUDFLARE_R2_SECRET_KEY=${env.CLOUDFLARE_R2_SECRET_KEY}
-                                set CLOUDFLARE_R2_BUCKET_NAME=${env.CLOUDFLARE_R2_BUCKET_NAME}
-                                set CLOUDFLARE_R2_ENDPOINT=${env.CLOUDFLARE_R2_ENDPOINT}
-
-                                # Usa el archivo docker-compose específico del entorno si existe
-                                if exist "docker-compose.${env.DEPLOY_ENV}.yml" (
-                                    docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml down
-                                    docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml up -d
-                                ) else (
-                                    docker-compose down
-                                    docker-compose up -d
-                                )
-                            """
-                        }
-                    }
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'main'
                 }
             }
+            steps {
+                script {
+                    // Configura el entorno basado en la rama
+                    def envFile = "${env.DEPLOY_ENV}.env"
+
+                    sh """
+                        export CLOUDFLARE_R2_ACCESS_KEY=${env.CLOUDFLARE_R2_ACCESS_KEY}
+                        export CLOUDFLARE_R2_SECRET_KEY=${env.CLOUDFLARE_R2_SECRET_KEY}
+                        export CLOUDFLARE_R2_BUCKET_NAME=${env.CLOUDFLARE_R2_BUCKET_NAME}
+                        export CLOUDFLARE_R2_ENDPOINT=${env.CLOUDFLARE_R2_ENDPOINT}
+
+                        # Usa el archivo docker-compose específico del entorno si existe
+                        if [ -f "docker-compose.${env.DEPLOY_ENV}.yml" ]; then
+                            docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml down
+                            docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml up -d
+                        else
+                            docker-compose down
+                            docker-compose up -d
+                        fi
+                    """
+                }
+            }
+        }
+    }
 
     post {
         always {
@@ -97,7 +96,6 @@ pipeline {
     }
 }
 
-// Función para obtener la versión basada en la rama
 def getVersionFromBranch(branch) {
     if (branch == 'main') {
         return "v1.0"
