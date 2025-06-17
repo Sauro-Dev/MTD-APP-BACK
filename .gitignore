@@ -20,6 +20,8 @@ desktop.ini
 *.iws
 *.iml
 *.ipr
+*.tfvars
+*.pem
 
 ### NetBeans ###
 /nbproject/private/
