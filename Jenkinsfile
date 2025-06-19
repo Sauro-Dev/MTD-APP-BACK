@@ -1,22 +1,16 @@
 pipeline {
-    agent {
-        label 'ec2-agent'
-    }
-
+    agent any
     tools {
         maven 'Maven'
         jdk 'JDK17'
     }
-
     environment {
         GIT_BRANCH = "${env.BRANCH_NAME ?: env.GIT_BRANCH ?: 'develop'}"
         DEPLOY_ENV = "${env.GIT_BRANCH == 'main' ? 'production' : env.GIT_BRANCH == 'develop' ? 'staging' : 'testing'}"
-
         APP_NAME = 'mtd-api'
         VERSION = getVersionFromBranch("${env.GIT_BRANCH}")
         DOCKER_IMAGE_TAG = "${APP_NAME}:${VERSION}-${BUILD_NUMBER}"
     }
-
     stages {
         stage('Checkout') {
             steps {
@@ -25,11 +19,9 @@ pipeline {
                 echo "Deploying to ${env.DEPLOY_ENV} environment from branch ${env.GIT_BRANCH}"
             }
         }
-
         stage('Build and Test') {
             steps {
                 sh 'mvn clean package'
-
                 sh 'ls target/*.jar'
             }
             post {
@@ -39,16 +31,13 @@ pipeline {
                 }
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 sh 'ls target/*.jar || (echo "ERROR: JAR file not found" && exit 1)'
-
                 sh "docker build -t ${DOCKER_IMAGE_TAG} ."
                 sh "docker tag ${DOCKER_IMAGE_TAG} ${APP_NAME}:latest"
             }
         }
-
         stage('Deploy') {
             when {
                 anyOf {
@@ -58,16 +47,12 @@ pipeline {
             }
             steps {
                 script {
-                    // Configura el entorno basado en la rama
                     def envFile = "${env.DEPLOY_ENV}.env"
-
                     sh """
                         export CLOUDFLARE_R2_ACCESS_KEY=${env.CLOUDFLARE_R2_ACCESS_KEY}
                         export CLOUDFLARE_R2_SECRET_KEY=${env.CLOUDFLARE_R2_SECRET_KEY}
                         export CLOUDFLARE_R2_BUCKET_NAME=${env.CLOUDFLARE_R2_BUCKET_NAME}
                         export CLOUDFLARE_R2_ENDPOINT=${env.CLOUDFLARE_R2_ENDPOINT}
-
-                        # Usa el archivo docker-compose específico del entorno si existe
                         if [ -f "docker-compose.${env.DEPLOY_ENV}.yml" ]; then
                             docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml down
                             docker-compose -f docker-compose.${env.DEPLOY_ENV}.yml up -d
@@ -80,12 +65,9 @@ pipeline {
             }
         }
     }
-
     post {
         always {
-            node('ec2-agent') {
-                cleanWs()
-            }
+            cleanWs()
         }
         success {
             echo "Pipeline completed successfully for ${env.GIT_BRANCH} branch!"
