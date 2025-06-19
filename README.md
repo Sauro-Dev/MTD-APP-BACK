@@ -2,6 +2,16 @@
 
 Sistema de gestión de voluntarios desarrollado con Spring Boot que proporciona una API REST completa para la administración de usuarios, archivos y autenticación JWT.
 
+## 📋 Problemática
+
+La ONG Make the Difference busca fomentar el liderazgo y el trabajo en equipo entre jóvenes voluntarios, a través de talleres formativos gratuitos. Hasta ahora, la gestión de actividades, el seguimiento de la capacitación y la logística de estos talleres se realizaba de manera manual, lo cual genera:
+
+- Cuellos de botella operativos
+- Alto consumo de tiempo administrativo
+- Limitaciones para escalar los programas
+
+Para abordar este desafío, se implementó un sistema integrado de gestión que centraliza la información de voluntarios, automatiza la planificación de talleres y optimiza la experiencia tanto de participantes como de administradores.
+
 ## 👥 Equipo de Trabajo del Curso (IaC)
 
 - Cisneros Bartra, Adrián
@@ -18,6 +28,7 @@ Sistema de gestión de voluntarios desarrollado con Spring Boot que proporciona 
 - **Documentación automática** - Swagger/OpenAPI integrado
 - **Contenedorización** - Docker y Docker Compose listos para producción
 - **CI/CD** - Pipeline automatizado con Jenkins
+- **Infraestructura como Código** - Gestión completa de infraestructura con Terraform
 
 ## 🛠️ Stack Tecnológico
 
@@ -30,6 +41,23 @@ Sistema de gestión de voluntarios desarrollado con Spring Boot que proporciona 
 | JWT | 0.11.5 | Tokens de autenticación |
 | Docker | Latest | Contenedorización |
 | Maven | 3.9+ | Gestión de dependencias |
+| Terraform | ~> 4.0 | Infraestructura como código |
+| AWS | EC2 | Despliegue en nube |
+| Cloudflare | R2, D1, Zero Trust | Almacenamiento, BD distribuida y seguridad |
+
+## 🏗️ Arquitectura de Infraestructura
+
+El proyecto utiliza Terraform para gestionar la infraestructura en dos proveedores principales:
+
+### Cloudflare
+- **R2 Bucket (mtd-files)**: Almacenamiento compatible con S3 para archivos de talleres y materiales formativos
+- **D1 Database (mtd)**: Base de datos SQL distribuida para acceso rápido global
+- **Zero Trust Tunnel**: Proporciona acceso seguro a la aplicación
+
+### AWS
+- **EC2 Instance**: Servidor para el despliegue de la aplicación backend
+- **CI/CD Integration**: Integración con Jenkins para despliegue automatizado
+- **Region**: us-east-2 (Ohio) para optimizar la latencia en América
 
 ## 📋 Requisitos
 
@@ -37,6 +65,9 @@ Sistema de gestión de voluntarios desarrollado con Spring Boot que proporciona 
 - **Maven 3.9+** (incluido Maven Wrapper)
 - **Docker** y **Docker Compose**
 - **Git**
+- **Terraform** (para gestión de infraestructura)
+- **Cuenta AWS** (para despliegue en producción)
+- **Cuenta Cloudflare** (para servicios R2, D1 y Zero Trust)
 
 ## ⚡ Inicio Rápido
 
@@ -81,6 +112,30 @@ docker-compose up -d
 ```
 
 La aplicación estará disponible en: `http://localhost:8080`
+
+## 🌐 Despliegue en Infraestructura
+
+Provisionar infraestructura con Terraform
+
+Cloudflare:
+```bash
+cd terraform/terraform-cloudflare
+terraform init
+terraform apply
+```
+
+AWS:
+```bash
+cd terraform/terraform-aws
+terraform init
+terraform apply
+```
+
+Beneficios del enfoque IaC:
+- **Reproducibilidad**: Entornos idénticos en desarrollo y producción
+- **Escalabilidad**: Facilidad para escalar la infraestructura según demanda
+- **Versionamiento**: Control de versiones para la infraestructura
+- **Auditoría**: Registro completo de cambios en la infraestructura
 
 ## 📚 Documentación API
 
