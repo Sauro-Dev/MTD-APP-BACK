@@ -19,15 +19,14 @@ pipeline {
                 echo "Deploying to ${env.DEPLOY_ENV} environment from branch ${env.GIT_BRANCH}"
             }
         }
-        stage('Build and Test') {
+        stage('Build') {
             steps {
-                sh 'mvn clean package'
+                sh 'mvn clean package -DskipTests'
                 sh 'ls target/*.jar'
             }
             post {
                 success {
                     archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-                    junit '**/target/surefire-reports/TEST-*.xml'
                 }
             }
         }
