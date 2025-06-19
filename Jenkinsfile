@@ -83,7 +83,7 @@ pipeline {
 
     post {
         always {
-            node('master') {
+            node('ec2-agent') {
                 cleanWs()
             }
         }
