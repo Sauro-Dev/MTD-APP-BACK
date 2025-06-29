@@ -1,0 +1,14 @@
+git:latest
+workflow-aggregator:latest
+pipeline-stage-view:latest
+blueocean:latest
+maven-plugin:latest
+docker-workflow:latest
+job-dsl:latest
+configuration-as-code:latest
+matrix-auth:latest
+jdk-tool:latest
+configuration-as-code-support:latest
+ssh-agent:latest
+cloudbees-folder:latest
+ws-cleanup:latest

@@ -11,6 +11,9 @@ pipeline {
         VERSION = getVersionFromBranch("${env.GIT_BRANCH}")
         DOCKER_IMAGE_TAG = "${APP_NAME}:${VERSION}-${BUILD_NUMBER}"
     }
+    triggers {
+            pollSCM('* * * * *')
+        }
     stages {
         stage('Checkout') {
             steps {

@@ -1,0 +1,58 @@
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  numExecutors: 2
+  mode: NORMAL
+  scmCheckoutRetryCount: 2
+
+tool:
+  maven:
+    installations:
+      - name: "Maven"
+        home: "/usr/share/maven"
+  jdk:
+    installations:
+      - name: "JDK17"
+        home: "/opt/java/openjdk"
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - basicSSHUserPrivateKey:
+              scope: SYSTEM
+              id: "ci-agent-ssh"
+              username: "ubuntu"
+              privateKeySource:
+                directEntry:
+                  privateKey: |
+                    ${JENKINS_AGENT_PRIVATE_KEY}
+
+jobs:
+  - script: |
+      // Crear el pipeline job
+      def job = pipelineJob('mtd-pipeline') {
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/Sauro-Dev/MTD-APP-BACK.git')
+                }
+                branches('*/main')
+              }
+            }
+            scriptPath('Jenkinsfile')
+          }
+        }
+      }
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"
