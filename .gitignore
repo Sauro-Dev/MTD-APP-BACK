@@ -16,7 +16,7 @@ desktop.ini
 .env
 terraform/.terraform
 terraform/terraform.tfstate
-
+terraform
 ### IntelliJ IDEA ###
 .idea
 *.iws

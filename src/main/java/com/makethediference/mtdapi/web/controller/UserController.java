@@ -38,7 +38,7 @@ public class UserController {
         }
         jwtService.invalidateToken(token);
         SecurityContextHolder.clearContext();
-        return ResponseEntity.ok("Sesión cerrada correctamente.");
+        return ResponseEntity.ok("Sesión cerrada de manera correcta.");
     }
 
     @PostMapping("/validate-token")
