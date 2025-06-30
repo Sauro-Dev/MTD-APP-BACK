@@ -43,6 +43,7 @@ JENKINS_ADMIN_PASSWORD=$${JENKINS_ADMIN_PASSWORD:-admin123}
 # Ejecutar tu imagen personalizada de Jenkins desde Docker Hub
 docker run -d --name jenkins -p 8080:8080 -p 50000:50000 \
   -v jenkins_home:/var/jenkins_home \
+  -v /var/run/docker.sock:/var/run/docker.sock \
   -e JENKINS_ADMIN_PASSWORD=$JENKINS_ADMIN_PASSWORD \
   -e JENKINS_AGENT_PRIVATE_KEY="$JENKINS_AGENT_PRIVATE_KEY" \
   -e JENKINS_AGENT_IP="$JENKINS_AGENT_IP" \
