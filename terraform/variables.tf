@@ -32,7 +32,7 @@ variable "aws_region" {
 variable "ec2_instance_type" {
   description = "EC2 for mtd"
   type        = string
-  default     = "t3.micro"
+  default     = "t3.small"
 }
 
 /* CLOUDFLARE VARIABLES */
