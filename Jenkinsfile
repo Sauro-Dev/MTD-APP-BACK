@@ -15,6 +15,12 @@ pipeline {
             pollSCM('* * * * *')
         }
     stages {
+        stage('Check Java & Maven Version') {
+            steps {
+                sh 'java -version'
+                sh 'mvn -version'
+            }
+        }
         stage('Checkout') {
             steps {
                 checkout scm
