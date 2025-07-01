@@ -29,15 +29,30 @@ pipeline {
             }
         }
         stage('Build') {
-            steps {
-                sh 'mvn clean package -DskipTests'
-                sh 'ls target/*.jar'
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-                }
-            }
+                    steps {
+                        sh 'mvn clean compile'
+                    }
+        }
+        stage('Test') {
+                    steps {
+                        sh 'mvn test'
+                    }
+                    post {
+                        always {
+                            junit 'target/surefire-reports/*.xml'
+                        }
+                    }
+        }
+        stage('Package') {
+                    steps {
+                        sh 'mvn package -DskipTests'
+                        sh 'ls target/*.jar'
+                    }
+                    post {
+                        success {
+                            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                        }
+                    }
         }
         stage('Build Docker Image') {
             steps {
