@@ -28,6 +28,11 @@ pipeline {
                 echo "Deploying to ${env.DEPLOY_ENV} environment from branch ${env.GIT_BRANCH}"
             }
         }
+        stage('Clean') {
+            steps {
+                sh 'mvn clean'
+            }
+        }
         stage('Build') {
                     steps {
                         sh 'mvn clean compile'
