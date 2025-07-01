@@ -1,5 +1,6 @@
 package com.makethediference.mtdapi.service.impl;
 
+import com.makethediference.mtdapi.domain.dto.volunteer.ApiResponse; // <-- AGREGA ESTE IMPORT
 import com.makethediference.mtdapi.domain.dto.volunteer.ValidateVolunteer;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerPending;
@@ -31,6 +32,14 @@ public class VolunteerServiceImpl implements VolunteerService {
     private static final String ALPHANUMERIC_CHARS =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int PASSWORD_LENGTH = 8;
+
+    // NUEVO MÉTODO REQUERIDO POR TU INTERFAZ Y TEST
+    @Override
+    public ApiResponse createVolunteerRequest(VolunteerForm form) {
+        // Puedes reutilizar el método existente
+        submitVolunteerForm(form);
+        return new ApiResponse("Solicitud de voluntariado enviada correctamente.");
+    }
 
     @Override
     public void submitVolunteerForm(VolunteerForm form) {
@@ -68,7 +77,7 @@ public class VolunteerServiceImpl implements VolunteerService {
     @Override
     public Optional<VolunteerPending> getVolunteerById(Long id) {
         return volunteerRepository.findById(id)
-                .filter(volunteer ->  volunteer.getStatus() == VolunteerStatus.PENDING)
+                .filter(volunteer -> volunteer.getStatus() == VolunteerStatus.PENDING)
                 .map(volunteerMapper::toPending);
     }
 

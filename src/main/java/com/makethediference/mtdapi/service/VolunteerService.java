@@ -1,5 +1,6 @@
 package com.makethediference.mtdapi.service;
 
+import com.makethediference.mtdapi.domain.dto.volunteer.ApiResponse;
 import com.makethediference.mtdapi.domain.dto.volunteer.ValidateVolunteer;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerForm;
 import com.makethediference.mtdapi.domain.dto.volunteer.VolunteerPending;
@@ -12,4 +13,5 @@ public interface VolunteerService {
     List<VolunteerPending> getPendingVolunteers();
     Optional<VolunteerPending> getVolunteerById(Long id);
     void validateRequest(ValidateVolunteer dto);
+    ApiResponse createVolunteerRequest(VolunteerForm form);
 }

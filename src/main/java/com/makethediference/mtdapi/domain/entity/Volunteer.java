@@ -26,5 +26,6 @@ public class Volunteer extends User{
     private String adminComments;
     private LocalDateTime submissionDate;
     private LocalDateTime validationDate;
+    private Area appliedArea;
 
 }
